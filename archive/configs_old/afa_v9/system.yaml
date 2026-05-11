@@ -1,0 +1,115 @@
+# AFA v9.0 系统配置文件
+# 集中化管理所有配置项
+
+name: "AFA Football Analyzer"
+version: "9.0.0"
+mode: "production"  # development | production | testing
+debug: false
+
+paths:
+  data_dir: "data"
+  memory_dir: "memory"
+  reports_dir: "workspace/data/backtest_reports"
+  datasets_dir: "datasets"
+  workspace_dir: "workspace"
+  cache_dir: "data/cache"
+
+api:
+  timeout: 30
+  retry_count: 3
+  retry_delay: 1.0
+
+data_sources:
+  enabled:
+    - the_odds_api
+    - api_football
+    - sportmonks
+  fallback_order:
+    - the_odds_api
+    - api_football
+    - sportmonks
+    - mock
+
+memory:
+  short_term:
+    max_size: 100
+    ttl_hours: 24
+  long_term:
+    storage_path: "memory/long_term_memory.json"
+  episodic:
+    max_episodes: 1000
+  search:
+    db_path: "memory/memory_search.db"
+    default_limit: 10
+    order_by: "bm25"
+
+skills:
+  enabled_categories:
+    - data
+    - analysis
+    - risk
+    - execution
+    - intel
+  require_approval:
+    - execute_quant_script
+    - execute_ticket_route
+
+plugins:
+  enabled: true
+  auto_load: false
+  plugin_dir: "plugins"
+  types:
+    - data
+    - analysis
+    - execution
+    - intel
+    - custom
+
+tasks:
+  queue:
+    enabled: true
+    db_path: "data/tasks/task_queue.db"
+    max_retries: 3
+    worker_threads: 2
+  scheduled:
+    daily_report: "08:00"
+    odds_refresh: "*/15"
+    health_check: "*/5"
+
+logging:
+  level: "INFO"  # DEBUG | INFO | WARNING | ERROR | CRITICAL
+  format: "%(asctime)s [%(levelname)s] %(name)s - %(message)s"
+  file: "logs/afa.log"
+  max_size: 10485760  # 10MB
+  backup_count: 5
+
+heartbeat:
+  interval_seconds: 300  # 5分钟
+  health_check_interval: 60
+
+evolution:
+  enabled: true
+  auto_evolve: false
+  min_samples: 10
+  target_win_rate: 0.55
+  max_roi_drop: 0.1
+
+risk_management:
+  min_ev_threshold: 1.05
+  max_stake_percent: 0.05
+  max_drawdown: 0.15
+  kelly_fraction: 0.25
+
+lottery:
+  types:
+    - jingcai
+    - beidan
+    - zucai
+  markets:
+    - WDL
+    - HANDICAP
+    - OVER_UNDER
+    - CS
+    - HTFT
+    - GOALS
+  beidan_commission: 0.65

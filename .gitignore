@@ -1,0 +1,64 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDEs
+.vscode/
+.idea/
+.trae/
+.DS_Store
+
+# Project Specific Data (HUGE FILES - DO NOT COMMIT)
+standalone_workspace/workspace/data/
+standalone_workspace/workspace/datasets/
+src/core/data/sources/*.json
+src/tools/odds/*.json
+
+# Databases
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+test_*.db
+test_*.db-shm
+test_*.db-wal
+
+# Archiving & Large Files
+backups/
+archives/
+*.tar.gz
+*.zip
+*.db
+*.sqlite3
+*.bin
+standalone_workspace/workspace/datasets/raw/*.json
+standalone_workspace/workspace/data/chroma_db/
+standalone_workspace/workspace/data/*.json
+standalone_workspace/workspace/data/backtest_reports/
+workspace/
+data/
+datasets/
+models/
+*.pkl
+*.pt
+*.onnx
+
+# Archived Reports (optional - commit if needed)
+docs/archive/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+*.egg

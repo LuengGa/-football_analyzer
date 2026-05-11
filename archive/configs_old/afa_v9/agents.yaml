@@ -1,0 +1,123 @@
+# AFA v9.0 Agent配置文件
+# 定义Agent类型、角色和协作关系
+
+agents:
+  scout:
+    name: "Scout Agent"
+    role: "情报侦察"
+    description: "收集比赛基础信息、赔率、新闻等情报"
+    skills:
+      - fetch_match_data
+      - fetch_odds
+      - get_today_fixtures
+      - search_news
+      - fetch_arbitrage_news
+    priority: 1
+    timeout: 30
+
+  quant:
+    name: "Quant Agent"
+    role: "量化分析"
+    description: "执行数学计算：泊松分布、凯利公式、蒙特卡洛模拟"
+    skills:
+      - calculate_all_markets
+      - calculate_poisson_probabilities
+      - run_monte_carlo_simulation
+      - run_st_gnn_simulator
+      - analyze_kelly_variance
+    priority: 2
+    timeout: 60
+
+  market:
+    name: "Market Agent"
+    role: "市场分析"
+    description: "分析赔率变动、聪明资金流向、盘口异常"
+    skills:
+      - detect_smart_money
+      - analyze_asian_handicap_divergence
+      - detect_betfair_anomaly
+      - get_global_arbitrage_data
+      - detect_latency_arbitrage
+    priority: 3
+    timeout: 30
+
+  risk:
+    name: "Risk Agent"
+    role: "风控识别"
+    description: "识别诱盘陷阱、评估风险等级"
+    skills:
+      - identify_low_odds_trap
+      - analyze_kelly_variance
+      - gather_match_intelligence
+    priority: 4
+    timeout: 20
+
+  trader:
+    name: "Trader Agent"
+    role: "交易决策"
+    description: "综合所有分析结果，做出最终投注决策"
+    skills:
+      - calculate_complex_parlay
+      - calculate_chuantong_combinations
+      - generate_simulated_ticket
+      - execute_ticket_route
+    priority: 5
+    timeout: 15
+
+  auditor:
+    name: "Auditor Agent"
+    role: "审计复核"
+    description: "复核交易决策，记录经验教训"
+    skills:
+      - retrieve_team_memory
+      - get_league_persona
+    priority: 6
+    timeout: 20
+
+workflows:
+  pre_match:
+    name: "赛前分析流程"
+    steps:
+      - agent: scout
+        next_on_success: quant
+        next_on_failure: end
+      - agent: quant
+        next_on_success: market
+        next_on_failure: end
+      - agent: market
+        next_on_success: risk
+        next_on_failure: end
+      - agent: risk
+        next_on_success: trader
+        next_on_failure: end
+      - agent: trader
+        next_on_success: auditor
+        next_on_failure: end
+      - agent: auditor
+        next_on_success: end
+        next_on_failure: end
+
+  in_play:
+    name: "走地分析流程"
+    steps:
+      - agent: scout
+        next_on_success: quant
+      - agent: quant
+        next_on_success: market
+      - agent: market
+        next_on_success: risk
+      - agent: risk
+        next_on_success: trader
+
+  backtest:
+    name: "回测流程"
+    steps:
+      - agent: quant
+      - agent: market
+      - agent: risk
+      - agent: auditor
+
+handoffs:
+  enabled: true
+  max_depth: 3
+  timeout: 300

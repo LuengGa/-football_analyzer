@@ -1,0 +1,80 @@
+# AFA v9.0 Skills配置文件
+# 定义技能分类、优先级和使用规则
+
+categories:
+  data:
+    name: "数据获取"
+    description: "从各种API和数据源获取比赛和赔率数据"
+    icon: "📡"
+    skills:
+      - fetch_match_data
+      - fetch_odds
+      - fetch_standings
+      - get_today_fixtures
+      - get_live_odds
+
+  analysis:
+    name: "分析计算"
+    description: "数学计算和统计分析"
+    icon: "🧮"
+    skills:
+      - run_st_gnn_simulator
+      - calculate_all_markets
+      - calculate_poisson_probabilities
+      - deep_evaluate_all_markets
+      - run_monte_carlo_simulation
+      - detect_smart_money
+      - analyze_asian_handicap_divergence
+
+  risk:
+    name: "风控识别"
+    description: "识别投注风险和陷阱"
+    icon: "⚠️"
+    skills:
+      - identify_low_odds_trap
+      - detect_latency_arbitrage
+      - detect_betfair_anomaly
+      - analyze_kelly_variance
+      - get_global_arbitrage_data
+
+  execution:
+    name: "投注执行"
+    description: "投注计算和出票"
+    icon: "🎫"
+    skills:
+      - calculate_complex_parlay
+      - calculate_chuantong_combinations
+      - generate_simulated_ticket
+      - retrieve_team_memory
+
+  intel:
+    name: "情报收集"
+    description: "收集外部情报和新闻"
+    icon: "🔍"
+    skills:
+      - fetch_arbitrage_news
+      - execute_quant_script
+      - get_league_persona
+      - gather_match_intelligence
+      - get_live_injuries
+      - search_news
+      - get_match_result
+
+skill_rules:
+  requires_approval:
+    - execute_quant_script
+    - execute_ticket_route
+  max_execution_time:
+    execute_quant_script: 60
+    run_st_gnn_simulator: 30
+    run_monte_carlo_simulation: 45
+
+  cacheable:
+    - fetch_standings
+    - get_league_persona
+    - retrieve_team_memory
+
+  rate_limits:
+    fetch_odds: 100
+    get_today_fixtures: 50
+    search_news: 20

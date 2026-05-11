@@ -1,0 +1,27 @@
+[flake8]
+max-line-length = 100
+max-complexity = 10
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    *.egg-info,
+    venv,
+    .venv,
+    standalone_workspace/workspace,
+    .eggs,
+    .tox
+ignore =
+    E203,
+    W503,
+    E501
+per-file-ignores =
+    # Allow unused imports in __init__.py files
+    __init__.py:F401
+    # Allow print statements in CLI scripts
+    standalone_workspace/scripts/*.py:T201
+    # Allow wildcard imports in shim layers
+    standalone_workspace/life_kernel/*.py:F403
+    standalone_workspace/runtime/*/__init__.py:F403
+    standalone_workspace/tools/*.py:F403
