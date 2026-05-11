@@ -1,12 +1,9 @@
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
-from src.core.historical_data import (
-    HISTORICAL_LOADER,
-    HistoricalDataLoader,
-    MatchRecord,
-)
+from src.core.historical_data import HISTORICAL_LOADER, HistoricalDataLoader, MatchRecord
 
 
 def test_loader_initialization():

@@ -15,21 +15,30 @@ AFA v9.0 完整集成测试
 
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.core.llm.gateway import LLMGateway, LLM_GATEWAY, ProviderType
 from src.afa_v9.agents import (
-    ScoutAgent, QuantAgent, MarketAgent, RiskAgent, TraderAgent, AuditorAgent,
-    ALL_AGENTS, get_agent_by_name,
+    ALL_AGENTS,
+    AuditorAgent,
+    MarketAgent,
+    QuantAgent,
+    RiskAgent,
+    ScoutAgent,
+    TraderAgent,
+    get_agent_by_name,
 )
+from src.afa_v9.evolution import EVOLUTION_ENGINE, EvolutionEngine, EvolutionPhase, OutcomeType
 from src.afa_v9.memory import (
-    Memory, MEMORY_INSTANCE, UnifiedMemory,
-    WorkingMemory, EpisodicMemory, SemanticMemory, BM25Search,
+    MEMORY_INSTANCE,
+    BM25Search,
+    EpisodicMemory,
+    Memory,
+    SemanticMemory,
+    UnifiedMemory,
+    WorkingMemory,
 )
-from src.afa_v9.evolution import (
-    EvolutionEngine, EVOLUTION_ENGINE,
-    EvolutionPhase, OutcomeType,
-)
+from src.core.llm.gateway import LLM_GATEWAY, LLMGateway, ProviderType
 
 
 def test_llm_gateway_integration():

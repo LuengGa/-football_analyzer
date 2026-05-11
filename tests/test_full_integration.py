@@ -4,23 +4,25 @@
 验证历史数据、增强版分析、回测引擎是否正常工作
 """
 
-import sys
 import os
+import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
 from src.afa_v9 import AFAV9_SYSTEM
+from src.calculations.backtest_engine import BacktestEngine
+from src.calculations.enhanced_six_layer import EnhancedSixLayerAnalyzer
 from src.calculations.historical_data_loader import HistoricalDataLoader
 from src.calculations.pro.poisson_model import PoissonGoalModel
-from src.calculations.enhanced_six_layer import EnhancedSixLayerAnalyzer
-from src.calculations.backtest_engine import BacktestEngine
+
 
 def print_separator(title=""):
     """打印分隔线"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     if title:
         print(f"  {title}")
-        print("="*80)
+        print("=" * 80)
+
 
 def test_afa_v9_initialization():
     """测试 AFA v9 系统初始化"""
@@ -45,8 +47,10 @@ def test_afa_v9_initialization():
     except Exception as e:
         print(f"❌ 初始化失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_find_historical_matches():
     """测试查找历史比赛"""
@@ -61,9 +65,11 @@ def test_find_historical_matches():
         home_team = "Bayern Munich"
         away_team = "Eintracht Frankfurt"
 
-        similar = [m for m in loader.matches
-                  if m.get('home_team') == home_team
-                  and m.get('away_team') == away_team][:3]
+        similar = [
+            m
+            for m in loader.matches
+            if m.get("home_team") == home_team and m.get("away_team") == away_team
+        ][:3]
 
         print(f"   找到 {len(similar)} 场 {home_team} vs {away_team} 历史比赛")
 
@@ -72,6 +78,7 @@ def test_find_historical_matches():
     except Exception as e:
         print(f"❌ 查询失败: {e}")
         return None
+
 
 def test_enhanced_analysis():
     """测试增强版六层分析"""
@@ -87,7 +94,7 @@ def test_enhanced_analysis():
             "league": "Bundesliga",
             "home_odds": 1.80,
             "draw_odds": 3.80,
-            "away_odds": 4.50
+            "away_odds": 4.50,
         }
 
         result = analyzer.analyze(test_match)
@@ -98,6 +105,7 @@ def test_enhanced_analysis():
     except Exception as e:
         print(f"⚠️ 增强版分析: {e}")
         return False
+
 
 def test_backtest_engine():
     """测试回测引擎"""
@@ -113,10 +121,11 @@ def test_backtest_engine():
         print(f"⚠️ 回测引擎: {e}")
         return False
 
+
 def main():
-    print("="*80)
+    print("=" * 80)
     print("  AFA v9.0 完整系统集成测试")
-    print("="*80)
+    print("=" * 80)
 
     results = []
 
@@ -135,9 +144,10 @@ def main():
 
     print(f"\n通过率: {passed}/{total} ({100*passed//total}%)")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("✅ 系统集成测试完成!")
-    print("="*80)
+    print("=" * 80)
+
 
 if __name__ == "__main__":
     main()

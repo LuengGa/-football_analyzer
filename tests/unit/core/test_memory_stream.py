@@ -12,14 +12,15 @@ try:
     from src.core.mentor_workflow import MentorWorkflow
 except ImportError:
     import pytest
+
     MentorWorkflow = None  # type: ignore
     pytest.skip("MentorWorkflow not available", allow_module_level=True)
 
-from src.tools.odds.memory_manager import MemoryManager
+from src.calculations.odds_analyzer import OddsAnalyzer
 from src.core.memory_retriever import MemoryRetriever
 from src.core.memory_writer import MemoryWriter
+from src.tools.odds.memory_manager import MemoryManager
 from src.tools.odds.multisource_fetcher import MultiSourceFetcher
-from src.calculations.odds_analyzer import OddsAnalyzer
 from src.tools.odds.snapshot_store import SnapshotStore
 
 
@@ -45,7 +46,9 @@ def isolated_data_dir(monkeypatch):
 
 
 def test_memory_writer_and_retriever_roundtrip(isolated_data_dir):
-    manager = MemoryManager(db_path=str(isolated_data_dir / "chroma_db"), embedding_function=FakeEmbeddingFunction())
+    manager = MemoryManager(
+        db_path=str(isolated_data_dir / "chroma_db"), embedding_function=FakeEmbeddingFunction()
+    )
     writer = MemoryWriter(manager=manager)
     retriever = MemoryRetriever(manager=manager)
 
@@ -80,8 +83,17 @@ def test_memory_writer_and_retriever_roundtrip(isolated_data_dir):
 
 def test_odds_analyzer_schema_includes_memory_explain():
     analyzer = OddsAnalyzer(use_historical=False)
-    memories = [{"doc_id": "x1", "summary": "历史复盘：临场降赔多为真实看好。", "league_code": "E0", "stage": "post_match"}]
-    out = analyzer.analyze({"home": 2.0, "draw": 3.4, "away": 3.8}, league="E0", calibrate=False, memories=memories)
+    memories = [
+        {
+            "doc_id": "x1",
+            "summary": "历史复盘：临场降赔多为真实看好。",
+            "league_code": "E0",
+            "stage": "post_match",
+        }
+    ]
+    out = analyzer.analyze(
+        {"home": 2.0, "draw": 3.4, "away": 3.8}, league="E0", calibrate=False, memories=memories
+    )
     schema = out["recommendation_schema"]
     assert "audit" in schema
     assert "explain" in schema["audit"]
@@ -144,7 +156,9 @@ def test_mentor_workflow_writes_and_reads_memories(monkeypatch, isolated_data_di
         stale=False,
     )
 
-    manager = MemoryManager(db_path=str(isolated_data_dir / "chroma_db"), embedding_function=FakeEmbeddingFunction())
+    manager = MemoryManager(
+        db_path=str(isolated_data_dir / "chroma_db"), embedding_function=FakeEmbeddingFunction()
+    )
     wf = MentorWorkflow(fetcher=fetcher, memory_manager=manager)
     res = wf.run(date="2026-04-15")
 
@@ -157,4 +171,3 @@ def test_mentor_workflow_writes_and_reads_memories(monkeypatch, isolated_data_di
     assert docs.get("ids")
     assert any("pre_match" in (m.get("stage") or "") for m in docs.get("metadatas") or [])
     assert any("post_match" in (m.get("stage") or "") for m in docs.get("metadatas") or [])
-

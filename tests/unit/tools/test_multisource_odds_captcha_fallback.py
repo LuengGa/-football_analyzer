@@ -1,9 +1,11 @@
 from src.tools.odds.multisource_fetcher import MultiSourceFetcher
 from src.tools.odds.snapshot_store import SnapshotStore
+
 try:
     from src.core.mentor_workflow import MentorWorkflow
 except ImportError:
     import pytest
+
     MentorWorkflow = None  # type: ignore
     pytest.skip("MentorWorkflow not available", allow_module_level=True)
 
@@ -109,5 +111,6 @@ def test_mentor_workflow_audit_records_captcha_degradation(monkeypatch, tmp_path
 
     wf = MentorWorkflow(fetcher=fetcher)
     res = wf.run(date="2026-04-15")
-    assert any("captcha_required" in str(x) for x in (res.get("audit") or {}).get("degradations") or [])
-
+    assert any(
+        "captcha_required" in str(x) for x in (res.get("audit") or {}).get("degradations") or []
+    )

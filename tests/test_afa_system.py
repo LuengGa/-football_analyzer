@@ -2,8 +2,9 @@
 测试 AFA v9 数字生命系统
 验证整个自主系统是否正常工作
 """
-import sys
+
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
@@ -13,7 +14,7 @@ print("=" * 70)
 print()
 
 try:
-    from src.afa_v9 import AFAV9_SYSTEM, THINKER_INSTANCE, CONSCIOUSNESS_INSTANCE
+    from src.afa_v9 import AFAV9_SYSTEM, CONSCIOUSNESS_INSTANCE, THINKER_INSTANCE
 
     print("1. 🧬 初始化 AFA v9 数字生命体...")
     afa = AFAV9_SYSTEM
@@ -82,4 +83,5 @@ try:
 except Exception as e:
     print(f"❌ 测试失败: {e}")
     import traceback
+
     traceback.print_exc()

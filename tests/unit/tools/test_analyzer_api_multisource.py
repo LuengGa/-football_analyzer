@@ -1,4 +1,5 @@
 import pytest
+
 from src.tools.odds.analyzer_api import AnalyzerAPI
 
 
@@ -29,4 +30,3 @@ if __name__ == "__main__":
     test_live_injuries_protocol_format()
     test_live_news_protocol_format()
     print("AnalyzerAPI multisource tests PASSED")
-

@@ -1,5 +1,6 @@
-import pytest
 import os
+
+import pytest
 
 from src.tools.execution.betting_ledger import BettingLedger
 
@@ -30,7 +31,9 @@ def test_ticket_proposal_two_step_confirm_creates_bet_and_deducts():
     before = ledger.check_bankroll(agent_id="analyst")["current_bankroll"]
     assert before == 100.0
 
-    confirmed = ledger.confirm_ticket_proposal(agent_id="analyst", proposal_id=proposal_id, confirm=True)
+    confirmed = ledger.confirm_ticket_proposal(
+        agent_id="analyst", proposal_id=proposal_id, confirm=True
+    )
     assert confirmed["status"] == "CONFIRMED"
 
     after = ledger.check_bankroll(agent_id="analyst")["current_bankroll"]
@@ -38,4 +41,3 @@ def test_ticket_proposal_two_step_confirm_creates_bet_and_deducts():
 
     if os.path.exists(db_path):
         os.remove(db_path)
-

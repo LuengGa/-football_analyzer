@@ -1,6 +1,9 @@
-import pytest
 import json
+
+import pytest
+
 from src.agents.league_profiler_v2 import get_league_persona
+
 
 @pytest.mark.skip(reason="get_league_persona profile format changed, needs update")
 def test_league_profiler_returns_persona():

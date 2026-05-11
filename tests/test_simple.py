@@ -3,18 +3,19 @@
 简单测试脚本 - AFA v9
 """
 
-import sys
 import os
+import sys
 
-sys.path.insert(0, os.path.abspath('src'))
+sys.path.insert(0, os.path.abspath("src"))
 
-from src.afa_v9 import AFAV9_SYSTEM, THINKER_INSTANCE, CONSCIOUSNESS_INSTANCE
+from src.afa_v9 import AFAV9_SYSTEM, CONSCIOUSNESS_INSTANCE, THINKER_INSTANCE
 from src.calculations.historical_data_loader import HistoricalDataLoader
 
+
 def main():
-    print("="*80)
+    print("=" * 80)
     print("  AFA v9.0 系统测试")
-    print("="*80)
+    print("=" * 80)
 
     print("\n[1] 初始化 AFA v9 系统...")
     print(f"✅ 初始化成功!")
@@ -58,9 +59,10 @@ def main():
     except Exception as e:
         print(f"❌ 查询失败: {e}")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("✅ 系统测试完成!")
-    print("="*80)
+    print("=" * 80)
+
 
 if __name__ == "__main__":
     main()

@@ -1,16 +1,17 @@
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from src.afa_v9.evolution import (
-    EvolutionEngine,
     EVOLUTION_ENGINE,
+    EvolutionEngine,
     EvolutionPhase,
-    OutcomeType,
-    Experience,
     EvolvedSkill,
-    Pattern,
+    Experience,
     Hypothesis,
+    OutcomeType,
+    Pattern,
 )
 
 
@@ -29,7 +30,7 @@ def test_record_experience():
         metrics={"profit": 1.0, "roi": 100.0},
         tags=["premier_league", "home_win"],
     )
-    
+
     assert exp is not None
     assert exp.id.startswith("exp_")
     assert exp.outcome == OutcomeType.SUCCESS
@@ -43,7 +44,7 @@ def test_create_skill():
         tags=["test"],
         source="unit_test",
     )
-    
+
     assert skill is not None
     assert skill.name == "Test Skill"
     assert skill.id in engine.skills
@@ -55,7 +56,7 @@ def test_apply_skill():
         name="Apply Test Skill",
         description="Testing skill application",
     )
-    
+
     engine.apply_skill(skill.id, success=True, profit=0.5)
     assert skill.usage_count == 1
     assert skill.success_count == 1
@@ -69,7 +70,7 @@ def test_generate_hypothesis():
         conditions={"league": "Premier League"},
         predicted_effect="Higher win rate",
     )
-    
+
     assert hyp is not None
     assert hyp.status == "pending"
 
@@ -77,7 +78,7 @@ def test_generate_hypothesis():
 def test_evaluate_performance():
     engine = EvolutionEngine()
     perf = engine.evaluate_performance()
-    
+
     assert "overall_effectiveness" in perf
     assert "total_skills" in perf
     assert isinstance(perf["total_skills"], int)
@@ -90,6 +91,6 @@ def test_evolution_singleton():
 
 def test_evolution_phases():
     engine = EvolutionEngine()
-    
+
     engine.analyze_patterns()
     assert engine.current_phase == EvolutionPhase.ANALYSIS

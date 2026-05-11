@@ -1,8 +1,9 @@
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
-from src.core.llm.gateway import LLMGateway, ProviderType, LLM_GATEWAY
+from src.core.llm.gateway import LLM_GATEWAY, LLMGateway, ProviderType
 
 
 def test_gateway_initialization():

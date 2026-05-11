@@ -1,5 +1,6 @@
 import pytest
 
+
 def test_match_identity_stable_across_sources():
     from core.match_identity import MatchIdentityBuilder
 

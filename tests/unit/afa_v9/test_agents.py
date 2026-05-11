@@ -1,16 +1,17 @@
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from src.afa_v9.agents import (
-    ScoutAgent,
-    QuantAgent,
-    MarketAgent,
-    RiskAgent,
-    TraderAgent,
-    AuditorAgent,
-    get_agent_by_name,
     ALL_AGENTS,
+    AuditorAgent,
+    MarketAgent,
+    QuantAgent,
+    RiskAgent,
+    ScoutAgent,
+    TraderAgent,
+    get_agent_by_name,
 )
 
 

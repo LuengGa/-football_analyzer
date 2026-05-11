@@ -2,15 +2,18 @@
 Test All Game Types - 测试所有玩法类型
 验证竞彩、北单、传统足彩和国际玩法的全覆盖
 """
-import sys
+
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.calculations.game_type_manager import (
     get_game_type_manager,
     get_parlay_calculator,
-    get_probability_engine
+    get_probability_engine,
 )
+
 
 def test_game_type_manager():
     """测试玩法类型管理器"""
@@ -43,6 +46,7 @@ def test_game_type_manager():
 
     return manager
 
+
 def test_probability_engine():
     """测试概率引擎"""
     print("\n" + "=" * 70)
@@ -66,6 +70,7 @@ def test_probability_engine():
 
     return engine
 
+
 def test_parlay_calculator():
     """测试串关计算器"""
     print("\n" + "=" * 70)
@@ -88,6 +93,7 @@ def test_parlay_calculator():
 
     return calculator
 
+
 def main():
     print("=" * 70)
     print("🏆 AFA v9.0 - 玩法类型全覆盖测试")
@@ -101,6 +107,7 @@ def main():
     print("\n" + "=" * 70)
     print("✅ 所有玩法测试通过!")
     print("=" * 70)
+
 
 if __name__ == "__main__":
     main()

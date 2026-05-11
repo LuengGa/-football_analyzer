@@ -4,10 +4,10 @@ Complete Professional System Test - v7.0
 测试所有优先级功能
 """
 
-import sys
 import os
+import sys
 
-sys.path.insert(0, os.path.abspath('src'))
+sys.path.insert(0, os.path.abspath("src"))
 
 from src.calculations.historical_data_loader import HistoricalDataLoader
 
@@ -26,7 +26,7 @@ def main():
     print("-" * 100)
 
     loader = HistoricalDataLoader()
-    cache_file = os.path.join('data', 'historical_data.pkl')
+    cache_file = os.path.join("data", "historical_data.pkl")
 
     if os.path.exists(cache_file):
         loader.load_cache(cache_file)
@@ -40,9 +40,12 @@ def main():
     print(f"  Teams: {len(loader.teams)}")
 
     valid_matches = [
-        m for m in loader.matches
-        if hasattr(m, 'home_goals') and m.home_goals is not None
-        and hasattr(m, 'away_goals') and m.away_goals is not None
+        m
+        for m in loader.matches
+        if hasattr(m, "home_goals")
+        and m.home_goals is not None
+        and hasattr(m, "away_goals")
+        and m.away_goals is not None
     ]
 
     print(f"  Valid matches: {len(valid_matches):,}")
@@ -63,8 +66,12 @@ def main():
 
         prediction = poisson.predict(sample_match.home_team, sample_match.away_team)
         if prediction:
-            print(f"  Expected goals: {prediction.home_goals_mean:.2f} - {prediction.away_goals_mean:.2f}")
-            print(f"  Probs: Home {prediction.home_win_prob:.1%} | Draw {prediction.draw_prob:.1%} | Away {prediction.away_win_prob:.1%}")
+            print(
+                f"  Expected goals: {prediction.home_goals_mean:.2f} - {prediction.away_goals_mean:.2f}"
+            )
+            print(
+                f"  Probs: Home {prediction.home_win_prob:.1%} | Draw {prediction.draw_prob:.1%} | Away {prediction.away_win_prob:.1%}"
+            )
             print(f"  Most likely: {prediction.most_likely_score}")
             print(f"  Over 2.5: {prediction.over_2_5_prob:.1%}")
 
@@ -99,6 +106,7 @@ def main():
 
     # 训练
     from src.calculations.pro.poisson_model import PoissonGoalModel
+
     test_model = PoissonGoalModel()
     test_model.fit(test_matches[:1000])
 

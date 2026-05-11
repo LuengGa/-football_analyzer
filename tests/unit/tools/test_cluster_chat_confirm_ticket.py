@@ -1,8 +1,9 @@
-import pytest
 import os
 import shutil
 import uuid
 from pathlib import Path
+
+import pytest
 
 
 @pytest.mark.skip(reason="Pre-existing: needs code update")
@@ -36,4 +37,3 @@ def test_cluster_chat_confirm_ticket_flow():
         assert life.ledger.check_bankroll(agent_id="analyst")["current_bankroll"] == 90.0
     finally:
         shutil.rmtree(cluster_root, ignore_errors=True)
-

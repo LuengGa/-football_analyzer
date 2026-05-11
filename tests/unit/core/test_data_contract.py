@@ -54,4 +54,3 @@ def test_normalized_odds_requires_audit_fields():
         raw_ref="snapshot:odds:500:hash",
     )
     assert o.market == "WDL"
-

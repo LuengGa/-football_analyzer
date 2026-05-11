@@ -1,15 +1,16 @@
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from src.afa_v9.memory import (
-    Memory,
     MEMORY_INSTANCE,
-    WorkingMemory,
-    EpisodicMemory,
-    SemanticMemory,
     BM25Search,
+    EpisodicMemory,
+    Memory,
+    SemanticMemory,
     UnifiedMemory,
+    WorkingMemory,
 )
 
 

@@ -1,13 +1,14 @@
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from src.core.vector_store import (
     VectorStoreFactory,
-    get_default_store,
-    embed_text,
     embed_match_context,
     embed_team_context,
+    embed_text,
+    get_default_store,
 )
 
 
@@ -56,17 +57,14 @@ def test_embed_match_context():
         home_team="Manchester City",
         away_team="Arsenal",
         league="Premier League",
-        odds={"home": 1.8, "draw": 3.5, "away": 4.2}
+        odds={"home": 1.8, "draw": 3.5, "away": 4.2},
     )
 
     assert len(vec) == 128
 
 
 def test_embed_team_context():
-    vec = embed_team_context(
-        team="Liverpool",
-        recent_results=["W", "W", "D", "L", "W"]
-    )
+    vec = embed_team_context(team="Liverpool", recent_results=["W", "W", "D", "L", "W"])
 
     assert len(vec) == 128
 
