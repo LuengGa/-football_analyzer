@@ -50,7 +50,7 @@ class EnhancedMemorySearch:
         query: str,
         raw_results: List[Dict],
         limit: int = 10
-    ) -&gt; List[EnhancedMemoryResult]:
+    ) -> List[EnhancedMemoryResult]:
         """
         LLM增强的语义搜索
         理解查询意图，智能排序结果
@@ -81,22 +81,22 @@ class EnhancedMemorySearch:
         enhanced_results.sort(key=lambda x: (x.relevance + x.semantic_match) / 2, reverse=True)
         return enhanced_results[:limit]
 
-    def _calculate_relevance(self, query: str, content: str) -&gt; float:
+    def _calculate_relevance(self, query: str, content: str) -> float:
         """计算关键词相关性"""
         query_terms = set(query.split())
         content_terms = set(content.split())
         if not query_terms:
             return 0.0
-        intersection = query_terms &amp; content_terms
+        intersection = query_terms & content_terms
         return len(intersection) / len(query_terms)
 
-    def _semantic_match(self, query: str, content: str) -&gt; float:
+    def _semantic_match(self, query: str, content: str) -> float:
         """简单语义匹配（实际生产中用向量嵌入）"""
         keywords = ["bet", "odds", "match", "team", "win", "lose", "profit", "loss", "strategy"]
         count = sum(1 for kw in keywords if kw in query.lower() or kw in content.lower())
         return min(1.0, count / 5)
 
-    def _generate_insights(self, query: str, content: str) -&gt; str:
+    def _generate_insights(self, query: str, content: str) -> str:
         """生成AI洞察（无LLM时用模板）"""
         if "win" in query.lower() and "win" in content.lower():
             return "此记忆包含获胜记录，可能对策略优化有价值"
@@ -104,11 +104,11 @@ class EnhancedMemorySearch:
             return "此记忆包含亏损记录，可用于风险规避参考"
         return "相关记忆片段"
 
-    def get_relation_map(self, key: str) -&gt; List[str]:
+    def get_relation_map(self, key: str) -> List[str]:
         """获取记忆关系图谱"""
         return self._relation_cache.get(key, [])
 
-    def build_relation_graph(self, memories: List[Dict]) -&gt; Dict[str, List[str]]:
+    def build_relation_graph(self, memories: List[Dict]) -> Dict[str, List[str]]:
         """构建记忆关系网络"""
         relations: Dict[str, List[str]] = {}
         for i, m1 in enumerate(memories):
@@ -122,15 +122,15 @@ class EnhancedMemorySearch:
         self._relation_cache.update(relations)
         return relations
 
-    def _has_relation(self, m1: Dict, m2: Dict) -&gt; bool:
+    def _has_relation(self, m1: Dict, m2: Dict) -> bool:
         """检查两个记忆是否相关"""
         tags1 = set(m1.get("tags", []))
         tags2 = set(m2.get("tags", []))
-        if tags1 &amp; tags2:
+        if tags1 & tags2:
             return True
         content1 = str(m1.get("content", "")).lower()
         content2 = str(m2.get("content", "")).lower()
-        return len(set(content1.split()) &amp; set(content2.split())) &gt; 3
+        return len(set(content1.split()) & set(content2.split())) > 3
 
 
 class EnhancedExecutionEngine:
@@ -147,7 +147,7 @@ class EnhancedExecutionEngine:
         match_data: Dict,
         odds_data: Dict,
         analysis_context: Dict
-    ) -&gt; Dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         AI智能投注决策
         综合所有因素，做出最终决策
@@ -170,18 +170,18 @@ class EnhancedExecutionEngine:
         odds_draw = odds_data.get("draw", 3.0)
         odds_away = odds_data.get("away", 2.0)
 
-        implied_home = 1 / odds_home if odds_home &gt; 0 else 0.33
-        implied_away = 1 / odds_away if odds_away &gt; 0 else 0.34
+        implied_home = 1 / odds_home if odds_home > 0 else 0.33
+        implied_away = 1 / odds_away if odds_away > 0 else 0.34
 
         edge_home = poisson_home_win - implied_home
         edge_away = poisson_away_win - implied_away
 
         best_edge = max(edge_home, edge_away)
 
-        if best_edge &gt; 0.05 and six_layer_score &gt; 0.6:
+        if best_edge > 0.05 and six_layer_score > 0.6:
             decision["approved"] = True
             decision["confidence"] = min(0.95, 0.5 + best_edge * 3)
-            decision["selection"] = "home" if edge_home &gt; edge_away else "away"
+            decision["selection"] = "home" if edge_home > edge_away else "away"
             decision["reasoning"] = f"价值边缘 {best_edge:.1%}，六层分析 {six_layer_score:.0%}，符合投注标准"
             decision["risk_factors"] = ["市场波动", "球队状态变化"]
             decision["recommended_stake"] = decision["confidence"] * 0.1
@@ -194,11 +194,11 @@ class EnhancedExecutionEngine:
     def predict_market_trend(
         self,
         historical_odds: List[Dict]
-    ) -&gt; Dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         LLM预测市场走势
         """
-        if len(historical_odds) &lt; 5:
+        if len(historical_odds) < 5:
             return {"direction": "neutral", "confidence": 0.5, "reasoning": "数据不足"}
 
         recent_changes = []
@@ -212,9 +212,9 @@ class EnhancedExecutionEngine:
         avg_change = sum(recent_changes) / len(recent_changes) if recent_changes else 0
 
         direction = "stable"
-        if avg_change &gt; 0.1:
+        if avg_change > 0.1:
             direction = "rising"
-        elif avg_change &lt; -0.1:
+        elif avg_change < -0.1:
             direction = "falling"
 
         confidence = min(0.9, 0.5 + abs(avg_change) * 2)
@@ -244,19 +244,19 @@ class EnhancedBankrollManager:
         confidence: float,
         bankroll: float,
         context: Optional[Dict] = None
-    ) -&gt; Dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         LLM动态Kelly计算
         根据市场状态、连胜记录等调整
         """
-        base_kelly = (estimated_prob * odds - 1) / (odds - 1) if odds &gt; 1 else 0
+        base_kelly = (estimated_prob * odds - 1) / (odds - 1) if odds > 1 else 0
 
         multiplier = 0.5
         if context:
             streak = context.get("streak", 0)
-            if streak &gt; 3:
+            if streak > 3:
                 multiplier *= 1.2
-            elif streak &lt; -3:
+            elif streak < -3:
                 multiplier *= 0.6
 
             market_volatility = context.get("market_volatility", "normal")
@@ -279,15 +279,15 @@ class EnhancedBankrollManager:
             "reasoning": self._generate_kelly_reasoning(base_kelly, multiplier, context)
         }
 
-    def _generate_kelly_reasoning(self, base_kelly: float, multiplier: float, context: Optional[Dict]) -&gt; str:
+    def _generate_kelly_reasoning(self, base_kelly: float, multiplier: float, context: Optional[Dict]) -> str:
         if not context:
             return f"基础Kelly {base_kelly:.2%}，保守调整 x{multiplier:.1f}"
 
         factors = []
         streak = context.get("streak", 0)
-        if streak &gt; 3:
+        if streak > 3:
             factors.append(f"连胜{streak}场适度提高")
-        elif streak &lt; -3:
+        elif streak < -3:
             factors.append(f"连败{abs(streak)}场降低风险")
 
         market = context.get("market_volatility", "normal")
@@ -303,11 +303,11 @@ class EnhancedBankrollManager:
         current_balance: float,
         initial_balance: float,
         recent_bets: List[Dict]
-    ) -&gt; Dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         AI资金健康评估
         """
-        roi = ((current_balance - initial_balance) / initial_balance) * 100 if initial_balance &gt; 0 else 0
+        roi = ((current_balance - initial_balance) / initial_balance) * 100 if initial_balance > 0 else 0
 
         win_rate = 0.5
         if recent_bets:
@@ -315,11 +315,11 @@ class EnhancedBankrollManager:
             win_rate = wins / len(recent_bets)
 
         risk_level = "healthy"
-        if roi &lt; -20:
+        if roi < -20:
             risk_level = "critical"
-        elif roi &lt; -10:
+        elif roi < -10:
             risk_level = "warning"
-        elif roi &gt; 20:
+        elif roi > 20:
             risk_level = "excellent"
 
         return {
@@ -331,7 +331,7 @@ class EnhancedBankrollManager:
             "health_score": min(1.0, max(0.0, 0.5 + roi / 100))
         }
 
-    def _get_health_recommendations(self, risk_level: str, win_rate: float) -&gt; List[str]:
+    def _get_health_recommendations(self, risk_level: str, win_rate: float) -> List[str]:
         recs = []
         if risk_level == "critical":
             recs.extend(["暂停投注", "重新评估策略", "降低风险偏好"])
@@ -342,9 +342,9 @@ class EnhancedBankrollManager:
         else:
             recs.append("保持当前节奏")
 
-        if win_rate &lt; 0.45:
+        if win_rate < 0.45:
             recs.append("提高选择质量")
-        elif win_rate &gt; 0.55:
+        elif win_rate > 0.55:
             recs.append("可适当增加置信投注")
 
         return recs
@@ -364,11 +364,11 @@ class EnhancedResultTracker:
         self,
         results: List[Dict],
         threshold_std: float = 2.0
-    ) -&gt; List[Dict]:
+    ) -> List[Dict]:
         """
         AI异常检测
         """
-        if len(results) &lt; 5:
+        if len(results) < 5:
             return []
 
         rois = [b.get("roi", 0) for b in results if b.get("roi") is not None]
@@ -377,19 +377,19 @@ class EnhancedResultTracker:
 
         avg_roi = sum(rois) / len(rois)
         variance = sum((r - avg_roi) ** 2 for r in rois) / len(rois)
-        std_dev = variance ** 0.5 if variance &gt; 0 else 1
+        std_dev = variance ** 0.5 if variance > 0 else 1
 
         anomalies = []
         for i, bet in enumerate(results):
             roi = bet.get("roi", 0)
-            z_score = (roi - avg_roi) / std_dev if std_dev &gt; 0 else 0
+            z_score = (roi - avg_roi) / std_dev if std_dev > 0 else 0
 
-            if abs(z_score) &gt; threshold_std:
+            if abs(z_score) > threshold_std:
                 anomalies.append({
                     "index": i,
                     "bet": bet,
                     "z_score": round(z_score, 2),
-                    "type": "extreme_win" if z_score &gt; 0 else "extreme_loss",
+                    "type": "extreme_win" if z_score > 0 else "extreme_loss",
                     "explanation": f"偏离均值{abs(z_score):.1f}个标准差"
                 })
 
@@ -398,11 +398,11 @@ class EnhancedResultTracker:
     def predict_trend(
         self,
         recent_results: List[Dict]
-    ) -&gt; Dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         LLM趋势预测
         """
-        if len(recent_results) &lt; 5:
+        if len(recent_results) < 5:
             return {"prediction": "unknown", "confidence": 0.5, "reasoning": "数据不足"}
 
         recent_5 = recent_results[-5:]
@@ -411,10 +411,10 @@ class EnhancedResultTracker:
         prediction = "neutral"
         confidence = 0.5
 
-        if win_count &gt;= 4:
+        if win_count >= 4:
             prediction = "improving"
             confidence = 0.8
-        elif win_count &lt;= 1:
+        elif win_count <= 1:
             prediction = "declining"
             confidence = 0.8
         else:
@@ -428,7 +428,7 @@ class EnhancedResultTracker:
             "suggestion": self._get_trend_suggestion(prediction)
         }
 
-    def _get_trend_suggestion(self, prediction: str) -&gt; str:
+    def _get_trend_suggestion(self, prediction: str) -> str:
         if prediction == "improving":
             return "趋势良好，可适度增加"
         elif prediction == "declining":
@@ -438,7 +438,7 @@ class EnhancedResultTracker:
     def generate_performance_report(
         self,
         period: str = "weekly"
-    ) -&gt; Dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         AI生成表现报告
         """
@@ -449,7 +449,7 @@ class EnhancedResultTracker:
         wins = sum(1 for b in self._bet_history if b.get("result") == "win")
         total_profit = sum(b.get("profit", 0) for b in self._bet_history)
         total_staked = sum(b.get("stake", 0) for b in self._bet_history)
-        roi = (total_profit / total_staked) * 100 if total_staked &gt; 0 else 0
+        roi = (total_profit / total_staked) * 100 if total_staked > 0 else 0
 
         return {
             "period": period,
@@ -461,17 +461,17 @@ class EnhancedResultTracker:
             "summary": self._generate_report_summary(roi, wins / total)
         }
 
-    def _generate_report_summary(self, roi: float, win_rate: float) -&gt; str:
-        if roi &gt; 10:
+    def _generate_report_summary(self, roi: float, win_rate: float) -> str:
+        if roi > 10:
             return f"表现优秀，ROI {roi:.1f}%"
-        elif roi &gt; 0:
+        elif roi > 0:
             return f"轻微盈利，ROI {roi:.1f}%"
-        elif roi &gt; -10:
+        elif roi > -10:
             return f"轻微亏损，建议调整，ROI {roi:.1f}%"
         else:
             return f"需要重新评估策略，ROI {roi:.1f}%"
 
-    def add_bet_record(self, bet_data: Dict) -&gt; None:
+    def add_bet_record(self, bet_data: Dict) -> None:
         self._bet_history.append(bet_data)
 
 
@@ -490,7 +490,7 @@ class EnhancedDataSourceManager:
         source_name: str,
         sample_data: Any,
         metadata: Optional[Dict] = None
-    ) -&gt; Dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         LLM评估数据源质量
         """
@@ -515,18 +515,18 @@ class EnhancedDataSourceManager:
             "freshness": round(freshness, 3),
             "accuracy": round(accuracy, 3),
             "recommendations": self._get_data_recommendations(quality_score, completeness, freshness),
-            "is_reliable": quality_score &gt; 0.6
+            "is_reliable": quality_score > 0.6
         }
 
-    def _assess_completeness(self, data: Any) -&gt; float:
+    def _assess_completeness(self, data: Any) -> float:
         if isinstance(data, dict):
             filled = sum(1 for v in data.values() if v not in [None, "", [], {}])
             return filled / len(data) if data else 0.0
         elif isinstance(data, list):
-            return 0.8 if len(data) &gt; 0 else 0.0
+            return 0.8 if len(data) > 0 else 0.0
         return 1.0 if data else 0.0
 
-    def _assess_freshness(self, metadata: Optional[Dict]) -&gt; float:
+    def _assess_freshness(self, metadata: Optional[Dict]) -> float:
         if not metadata:
             return 0.7
 
@@ -540,7 +540,7 @@ class EnhancedDataSourceManager:
                 pass
         return 0.7
 
-    def _assess_accuracy(self, data: Any) -&gt; float:
+    def _assess_accuracy(self, data: Any) -> float:
         score = 0.8
 
         if isinstance(data, dict):
@@ -550,13 +550,13 @@ class EnhancedDataSourceManager:
 
         return max(0.3, score)
 
-    def _get_data_recommendations(self, quality: float, completeness: float, freshness: float) -&gt; List[str]:
+    def _get_data_recommendations(self, quality: float, completeness: float, freshness: float) -> List[str]:
         recs = []
-        if quality &lt; 0.5:
+        if quality < 0.5:
             recs.append("考虑备用数据源")
-        if completeness &lt; 0.7:
+        if completeness < 0.7:
             recs.append("需要补充缺失字段")
-        if freshness &lt; 0.5:
+        if freshness < 0.5:
             recs.append("数据过时，需要更新")
         if not recs:
             recs.append("数据质量良好")
@@ -566,7 +566,7 @@ class EnhancedDataSourceManager:
         self,
         available_sources: List[str],
         criteria: str = "quality"
-    ) -&gt; str:
+    ) -> str:
         """
         AI智能选择最佳数据源
         """
@@ -581,7 +581,7 @@ class EnhancedDataSourceManager:
                     source_scores[source] = perf.get("avg_quality", 0.5)
                 elif criteria == "reliability":
                     total = perf.get("success_count", 0) + perf.get("failure_count", 0)
-                    source_scores[source] = perf.get("success_count", 0) / total if total &gt; 0 else 0.5
+                    source_scores[source] = perf.get("success_count", 0) / total if total > 0 else 0.5
                 else:
                     source_scores[source] = 0.5
             else:
@@ -595,7 +595,7 @@ class EnhancedDataSourceManager:
         success: bool,
         latency: float,
         quality_score: Optional[float] = None
-    ) -&gt; None:
+    ) -> None:
         if source_name not in self._source_performance:
             self._source_performance[source_name] = {
                 "success_count": 0,
@@ -638,7 +638,7 @@ class EnhancedSixLayerAnalyzer:
         self,
         match_data: Dict,
         context: Optional[Dict] = None
-    ) -&gt; Dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         LLM动态六层分析
         根据比赛情况调整各层权重
@@ -664,7 +664,7 @@ class EnhancedSixLayerAnalyzer:
             "ai_insight": self._generate_analysis_insight(layer_scores, weighted_score)
         }
 
-    def _adjust_weights(self, context: Optional[Dict]) -&gt; Dict[str, float]:
+    def _adjust_weights(self, context: Optional[Dict]) -> Dict[str, float]:
         weights = self._layer_weights.copy()
 
         if context:
@@ -679,50 +679,50 @@ class EnhancedSixLayerAnalyzer:
         total = sum(weights.values())
         return {k: v / total for k, v in weights.items()}
 
-    def _assess_odds_structure(self, match_data: Dict) -&gt; float:
+    def _assess_odds_structure(self, match_data: Dict) -> float:
         odds_home = match_data.get("home_odds", 2.0)
         odds_draw = match_data.get("draw_odds", 3.0)
         odds_away = match_data.get("away_odds", 2.0)
 
         implied_total = (1/odds_home) + (1/odds_draw) + (1/odds_away)
 
-        if 1.02 &lt;= implied_total &lt;= 1.12:
+        if 1.02 <= implied_total <= 1.12:
             return 0.8
-        elif implied_total &lt; 1.2:
+        elif implied_total < 1.2:
             return 0.6
         return 0.4
 
-    def _assess_market_movement(self, match_data: Dict, context: Optional[Dict]) -&gt; float:
+    def _assess_market_movement(self, match_data: Dict, context: Optional[Dict]) -> float:
         if not context:
             return 0.5
 
         movement = context.get("odds_movement", 0.0)
-        if abs(movement) &lt; 0.05:
+        if abs(movement) < 0.05:
             return 0.7
-        elif abs(movement) &lt; 0.15:
+        elif abs(movement) < 0.15:
             return 0.5
         return 0.3
 
-    def _assess_probability(self, match_data: Dict) -&gt; float:
+    def _assess_probability(self, match_data: Dict) -> float:
         home_prob = match_data.get("home_win_prob", 0.33)
         draw_prob = match_data.get("draw_prob", 0.33)
         away_prob = match_data.get("away_win_prob", 0.34)
 
         max_prob = max(home_prob, draw_prob, away_prob)
 
-        if max_prob &gt; 0.5:
+        if max_prob > 0.5:
             return 0.8
-        elif max_prob &gt; 0.4:
+        elif max_prob > 0.4:
             return 0.6
         return 0.4
 
-    def _assess_history(self, match_data: Dict) -&gt; float:
+    def _assess_history(self, match_data: Dict) -> float:
         return 0.6
 
-    def _assess_team_fitness(self, match_data: Dict) -&gt; float:
+    def _assess_team_fitness(self, match_data: Dict) -> float:
         return 0.5
 
-    def _assess_context(self, context: Optional[Dict]) -&gt; float:
+    def _assess_context(self, context: Optional[Dict]) -> float:
         if not context:
             return 0.5
 
@@ -732,16 +732,16 @@ class EnhancedSixLayerAnalyzer:
 
         return 0.6
 
-    def _get_recommendation(self, score: float) -&gt; str:
-        if score &gt; 0.7:
+    def _get_recommendation(self, score: float) -> str:
+        if score > 0.7:
             return "strong_bet"
-        elif score &gt; 0.6:
+        elif score > 0.6:
             return "consider_bet"
-        elif score &gt; 0.5:
+        elif score > 0.5:
             return "cautious"
         return "skip"
 
-    def _generate_analysis_insight(self, scores: Dict[str, float], final_score: float) -&gt; str:
+    def _generate_analysis_insight(self, scores: Dict[str, float], final_score: float) -> str:
         best_layer = max(scores.items(), key=lambda x: x[1])
         worst_layer = min(scores.items(), key=lambda x: x[1])
 
@@ -764,7 +764,7 @@ class EnhancedPoissonModel:
         away_team: str,
         base_stats: Dict,
         context: Optional[Dict] = None
-    ) -&gt; Dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         LLM增强的进球预测
         """
@@ -799,7 +799,7 @@ class EnhancedPoissonModel:
             "confidence": self._calculate_confidence(base_stats, context)
         }
 
-    def _calculate_match_probabilities(self, home_lambda: float, away_lambda: float) -&gt;tuple:
+    def _calculate_match_probabilities(self, home_lambda: float, away_lambda: float) ->tuple:
         """简单Poisson概率计算"""
         from math import exp, factorial
 
@@ -814,7 +814,7 @@ class EnhancedPoissonModel:
         for i in range(max_goals + 1):
             for j in range(max_goals + 1):
                 prob = home_dist[i] * away_dist[j]
-                if i &gt; j:
+                if i > j:
                     home_win += prob
                 elif i == j:
                     draw += prob
@@ -823,11 +823,11 @@ class EnhancedPoissonModel:
 
         return home_win, draw, away_win
 
-    def _poisson_prob(self, lambda_: float, k: int) -&gt; float:
+    def _poisson_prob(self, lambda_: float, k: int) -> float:
         from math import exp, factorial
         return exp(-lambda_) * (lambda_ ** k) / factorial(k)
 
-    def _list_adjustments(self, context: Optional[Dict]) -&gt; List[str]:
+    def _list_adjustments(self, context: Optional[Dict]) -> List[str]:
         adjustments = []
         if not context:
             return adjustments
@@ -841,7 +841,7 @@ class EnhancedPoissonModel:
 
         return adjustments
 
-    def _calculate_confidence(self, stats: Dict, context: Optional[Dict]) -&gt; float:
+    def _calculate_confidence(self, stats: Dict, context: Optional[Dict]) -> float:
         confidence = 0.65
         if stats.get("data_quality", "medium") == "high":
             confidence += 0.1
@@ -871,26 +871,26 @@ class EnhancedKellyCriterion:
         win_prob: float,
         confidence: float,
         portfolio_context: Optional[Dict] = None
-    ) -&gt; Dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         LLM增强的Kelly计算
         考虑组合优化、风险偏好
         """
-        base_kelly = (win_prob * odds - 1) / (odds - 1) if odds &gt; 1 else 0
+        base_kelly = (win_prob * odds - 1) / (odds - 1) if odds > 1 else 0
 
         adjustments = []
         multiplier = 0.5
 
         if portfolio_context:
             current_exposure = portfolio_context.get("current_exposure", 0.0)
-            if current_exposure &gt; 0.2:
+            if current_exposure > 0.2:
                 multiplier *= 0.8
                 adjustments.append("组合暴露过高，降低比例")
 
-            if portfolio_context.get("recent_win_streak", 0) &gt; 3:
+            if portfolio_context.get("recent_win_streak", 0) > 3:
                 multiplier *= 1.1
                 adjustments.append("连胜小幅提高")
-            elif portfolio_context.get("recent_loss_streak", 0) &gt; 3:
+            elif portfolio_context.get("recent_loss_streak", 0) > 3:
                 multiplier *= 0.7
                 adjustments.append("连败降低风险")
 
@@ -920,7 +920,7 @@ class EnhancedKellyCriterion:
         self,
         bet_candidates: List[Dict],
         max_exposure: float = 0.5
-    ) -&gt; List[Dict]:
+    ) -> List[Dict]:
         """
         LLM组合优化
         """
@@ -931,7 +931,7 @@ class EnhancedKellyCriterion:
         for bet in bet_candidates:
             odds = bet.get("odds", 2.0)
             prob = bet.get("win_prob", 0.5)
-            kelly = (prob * odds - 1) / (odds - 1) if odds &gt; 1 else 0
+            kelly = (prob * odds - 1) / (odds - 1) if odds > 1 else 0
 
             candidates.append({
                 "bet": bet,
@@ -947,7 +947,7 @@ class EnhancedKellyCriterion:
 
         for candidate in candidates:
             stake = min(candidate["kelly"] * 0.5, 0.1)
-            if total_exposure + stake &lt;= max_exposure:
+            if total_exposure + stake <= max_exposure:
                 selected.append({
                     "selection": candidate["selection"],
                     "stake": round(stake, 4),

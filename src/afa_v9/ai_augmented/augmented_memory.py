@@ -40,7 +40,7 @@ class LLMMemoryManager:
         self.insights_cache: Dict[str, MemoryInsight] = {}
     
     def analyze_memory(self, key: str, content: Any, 
-                       context: Optional[Dict] = None) -&gt; MemoryInsight:
+                       context: Optional[Dict] = None) -> MemoryInsight:
         """
         使用LLM分析记忆，生成总结和洞察
         """
@@ -68,7 +68,7 @@ class LLMMemoryManager:
             return self._fallback_analysis(key, self._format_content(content))
     
     def search_with_semantic_understanding(self, query: str, 
-                                          raw_results: List[Dict]) -&gt; List[Dict]:
+                                          raw_results: List[Dict]) -> List[Dict]:
         """
         使用LLM对搜索结果进行语义重排序
         """
@@ -87,7 +87,7 @@ class LLMMemoryManager:
             return raw_results[:10]
     
     def generate_memory_summary(self, memories: List[Dict], 
-                                focus: str = "general") -&gt; str:
+                                focus: str = "general") -> str:
         """
         生成记忆集合的综合总结
         """
@@ -123,7 +123,7 @@ class LLMMemoryManager:
             return self._fallback_summary(memories, focus)
     
     def assess_importance(self, content: Any, 
-                         context: Optional[Dict] = None) -&gt; float:
+                         context: Optional[Dict] = None) -> float:
         """
         智能评估记忆重要性（0-1）
         """
@@ -148,13 +148,13 @@ class LLMMemoryManager:
         except Exception:
             return 0.5
     
-    def _format_content(self, content: Any) -&gt; str:
+    def _format_content(self, content: Any) -> str:
         """格式化内容为字符串"""
         if isinstance(content, str):
             return content
         return json.dumps(content, ensure_ascii=False)
     
-    def _get_system_prompt(self) -&gt; str:
+    def _get_system_prompt(self) -> str:
         return """你是一个专业的体育博彩分析师助手，负责分析和管理记忆。
 请保持客观、专业，重点关注：
 1. 投注决策相关的模式
@@ -163,7 +163,7 @@ class LLMMemoryManager:
 4. 避免的错误模式"""
     
     def _build_analysis_prompt(self, content: str, 
-                               context: Optional[Dict]) -&gt; str:
+                               context: Optional[Dict]) -> str:
         context_str = f"\n上下文: {json.dumps(context, ensure_ascii=False)}" if context else ""
         
         return f"""请分析以下记忆内容，提取关键洞察：
@@ -180,12 +180,12 @@ class LLMMemoryManager:
   "importance_score": 0.8
 }}"""
     
-    def _parse_llm_response(self, key: str, response: str) -&gt; MemoryInsight:
+    def _parse_llm_response(self, key: str, response: str) -> MemoryInsight:
         """解析LLM响应"""
         try:
             json_start = response.find('{')
             json_end = response.rfind('}') + 1
-            if json_start &gt;= 0 and json_end &gt; json_start:
+            if json_start >= 0 and json_end > json_start:
                 data = json.loads(response[json_start:json_end])
                 return MemoryInsight(
                     key=key,
@@ -200,9 +200,9 @@ class LLMMemoryManager:
         
         return self._fallback_analysis(key, response)
     
-    def _fallback_analysis(self, key: str, content: str) -&gt; MemoryInsight:
+    def _fallback_analysis(self, key: str, content: str) -> MemoryInsight:
         """降级分析方法"""
-        content_short = content[:100] + "..." if len(content) &gt; 100 else content
+        content_short = content[:100] + "..." if len(content) > 100 else content
         return MemoryInsight(
             key=key,
             summary=content_short,
@@ -212,7 +212,7 @@ class LLMMemoryManager:
             generated_at=datetime.now().isoformat()
         )
     
-    def _semantic_rerank(self, query: str, results: List[Dict]) -&gt; List[Dict]:
+    def _semantic_rerank(self, query: str, results: List[Dict]) -> List[Dict]:
         """简单的语义重排序（基于关键词匹配）"""
         query_terms = set(query.lower().split())
         
@@ -224,7 +224,7 @@ class LLMMemoryManager:
         results.sort(key=lambda x: x.get("_semantic_score", 0), reverse=True)
         return results[:10]
     
-    def _fallback_summary(self, memories: List[Dict], focus: str) -&gt; str:
+    def _fallback_summary(self, memories: List[Dict], focus: str) -> str:
         """降级总结方法"""
         categories = {}
         for m in memories:

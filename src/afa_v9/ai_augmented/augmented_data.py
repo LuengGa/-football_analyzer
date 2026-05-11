@@ -43,7 +43,7 @@ class LLMDataManager:
     
     def evaluate_data_source(self, source_name: str, 
                            data: Any, 
-                           context: Optional[Dict] = None) -&gt; DataSourceQuality:
+                           context: Optional[Dict] = None) -> DataSourceQuality:
         """
         评估数据源质量
         """
@@ -71,7 +71,7 @@ class LLMDataManager:
     
     def select_best_source(self, source_names: List[str], 
                           data_samples: Dict[str, Any],
-                          priority: str = "accuracy") -&gt; str:
+                          priority: str = "accuracy") -> str:
         """
         选择最佳数据源
         """
@@ -96,7 +96,7 @@ class LLMDataManager:
         
         return source_names[0] if source_names else ""
     
-    def rank_data_quality(self, data_items: List[Dict]) -&gt; List[Dict]:
+    def rank_data_quality(self, data_items: List[Dict]) -> List[Dict]:
         """
         对数据项进行质量排序
         """
@@ -107,7 +107,7 @@ class LLMDataManager:
         return data_items
     
     def generate_data_quality_report(self, 
-                                    source_stats: Dict[str, Dict]) -&gt; str:
+                                    source_stats: Dict[str, Dict]) -> str:
         """
         生成数据质量报告
         """
@@ -137,7 +137,7 @@ class LLMDataManager:
     def record_source_performance(self, source_name: str, 
                                  success: bool, 
                                  latency: float,
-                                 data_quality: Optional[float] = None) -&gt; None:
+                                 data_quality: Optional[float] = None) -> None:
         """
         记录数据源性能
         """
@@ -163,7 +163,7 @@ class LLMDataManager:
         
         stats["last_used"] = datetime.now().isoformat()
     
-    def get_reliability_score(self, source_name: str) -&gt; float:
+    def get_reliability_score(self, source_name: str) -> float:
         """
         获取数据源可靠性分数
         """
@@ -177,13 +177,13 @@ class LLMDataManager:
         
         return stats["success_count"] / total
     
-    def _format_data(self, data: Any) -&gt; str:
+    def _format_data(self, data: Any) -> str:
         """格式化数据"""
         if isinstance(data, str):
             return data
         return json.dumps(data, ensure_ascii=False)
     
-    def _get_system_prompt(self) -&gt; str:
+    def _get_system_prompt(self) -> str:
         return """你是一个专业的数据源质量评估专家。
 请客观评估数据源的：
 1. 数据准确性
@@ -194,7 +194,7 @@ class LLMDataManager:
     
     def _build_evaluation_prompt(self, source_name: str, 
                                  data: str, 
-                                 context: Optional[Dict]) -&gt; str:
+                                 context: Optional[Dict]) -> str:
         context_str = f"\n上下文: {json.dumps(context, ensure_ascii=False)}" if context else ""
         
         return f"""请评估以下数据源质量：
@@ -214,12 +214,12 @@ class LLMDataManager:
 }}"""
     
     def _parse_quality_response(self, source_name: str, 
-                                response: str) -&gt; DataSourceQuality:
+                                response: str) -> DataSourceQuality:
         """解析质量评估响应"""
         try:
             json_start = response.find('{')
             json_end = response.rfind('}') + 1
-            if json_start &gt;= 0 and json_end &gt; json_start:
+            if json_start >= 0 and json_end > json_start:
                 data = json.loads(response[json_start:json_end])
                 return DataSourceQuality(
                     source_name=source_name,
@@ -236,7 +236,7 @@ class LLMDataManager:
         return self._fallback_evaluation(source_name, {})
     
     def _fallback_evaluation(self, source_name: str, 
-                            data: Any) -&gt; DataSourceQuality:
+                            data: Any) -> DataSourceQuality:
         """降级评估方法"""
         return DataSourceQuality(
             source_name=source_name,
@@ -248,7 +248,7 @@ class LLMDataManager:
             last_evaluated=datetime.now().isoformat()
         )
     
-    def _calculate_quality_score(self, item: Dict) -&gt; float:
+    def _calculate_quality_score(self, item: Dict) -> float:
         """计算数据项质量分数"""
         score = 0.5
         
@@ -264,7 +264,7 @@ class LLMDataManager:
         
         return min(1.0, max(0.0, score))
     
-    def _fallback_report(self, source_stats: Dict[str, Dict]) -&gt; str:
+    def _fallback_report(self, source_stats: Dict[str, Dict]) -> str:
         """降级报告方法"""
         report = ["数据质量报告", "=" * 40]
         for name, stats in source_stats.items():
