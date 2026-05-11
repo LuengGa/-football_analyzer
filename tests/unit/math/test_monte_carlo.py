@@ -1,6 +1,6 @@
 import pytest
 
-from src.calculations.monte_carlo_simulator import TimeSliceMonteCarlo
+from src.calculations.quant.monte_carlo_simulator import TimeSliceMonteCarlo
 
 
 def test_monte_carlo_simulation():

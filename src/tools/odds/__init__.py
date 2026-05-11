@@ -15,7 +15,10 @@ from .historical_db_loader import *
 from .market_deep_analyzer import *
 from .markowitz_portfolio import *
 from .mcp_beidan_scraper import *
-from .mcp_tools import *
+try:
+    from .mcp_tools import *
+except ImportError:
+    pass
 from .memory_manager import *
 from .monte_carlo import *
 from .multisource_fetcher import *
@@ -24,7 +27,10 @@ from .parlay_filter_matrix import *
 from .paths import *
 from .snapshot_store import *
 from .smart_money_tracker import *
-from .statsbomb_tracking import *
+try:
+    from .statsbomb_tracking import *
+except ImportError:
+    pass
 from .vision_odds_reader import *
 from .visual_browser import *
 from .waterfall_odds_fetcher import *

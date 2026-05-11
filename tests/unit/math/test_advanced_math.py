@@ -1,6 +1,6 @@
 import pytest
 
-from src.calculations.advanced_lottery_math import AdvancedLotteryMath
+from src.calculations.quant.advanced_lottery_math import AdvancedLotteryMath
 
 
 def test_calculate_beidan_sxds_matrix():
