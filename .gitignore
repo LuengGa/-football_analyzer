@@ -54,6 +54,9 @@ models/
 *.pt
 *.onnx
 
+# Exception for data backup
+!data_backup.tar.gz
+
 # Archived Reports (optional - commit if needed)
 docs/archive/
 
