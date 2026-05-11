@@ -5,7 +5,7 @@
 
 import hashlib
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pathlib import Path
 import json
 
@@ -83,7 +83,7 @@ def embed_match_context(
     home_team: str,
     away_team: str,
     league: str,
-    odds: dict = None
+    odds: Optional[Dict[Any, Any]] = None
 ) -> List[float]:
     context = f"{home_team} vs {away_team} in {league}"
     if odds:
@@ -93,7 +93,7 @@ def embed_match_context(
     return embed_text(context)
 
 
-def embed_team_context(team: str, recent_results: List[str] = None) -> List[float]:
+def embed_team_context(team: str, recent_results: Optional[List[str]] = None) -> List[float]:
     context = team
     if recent_results:
         context += " " + " ".join(recent_results)

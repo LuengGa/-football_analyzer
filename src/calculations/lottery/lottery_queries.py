@@ -20,7 +20,7 @@ class LotteryQuery:
     - 合法性校验
     """
 
-    def __init__(self, knowledge: LotteryKnowledge = None):
+    def __init__(self, knowledge: Optional[LotteryKnowledge] = None):
         self.knowledge = knowledge or LOTTERY_KNOWLEDGE
 
     def get_lottery_info(self, lottery_type: str) -> Dict[str, Any]:
@@ -41,7 +41,7 @@ class LotteryQuery:
         lottery_type: str,
         play_type: str,
         legs: int,
-        options: List[str] = None,
+        options: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         校验投注是否合法
@@ -49,8 +49,8 @@ class LotteryQuery:
         Returns:
             {"valid": bool, "errors": [], "warnings": []}
         """
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         try:
             lottery = self.knowledge.get_lottery(lottery_type)

@@ -788,7 +788,8 @@ class MultiSourceFetcher:
             
         if not api_key:
             return {"error": "OPENWEATHER_API_KEY is not set"}
-        # API fetch logic here
+        
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
         
         try:
             response = requests.get(url, timeout=5)

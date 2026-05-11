@@ -354,7 +354,7 @@ class GameTypeAnalyzer:
         game_type,
         options: List[tuple],
         option_names: List[str],
-        six_layer_data: Dict = None
+        six_layer_data: Optional[Dict[Any, Any]] = None
     ) -> GameRecommendation:
         """找出最佳选项"""
         best_opt = None
@@ -452,8 +452,8 @@ class MatchValueAnalyzer:
     def analyze_match(
         self,
         match_data: Dict[str, Any],
-        six_layer_data: Dict[str, Any] = None,
-        market_odds: Dict[str, Any] = None
+        six_layer_data: Optional[Dict[str, Any]] = None,
+        market_odds: Optional[Dict[str, Any]] = None
     ) -> MatchValueResult:
         """
         分析比赛价值并推荐玩法
