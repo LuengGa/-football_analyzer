@@ -319,7 +319,7 @@ class LotteryKnowledge:
             raise ValueError(f"未知彩种: {lottery_type}，必须是 JINGCAI 或 BEIDAN")
         return self._lotteries[lottery_type]
 
-    def query_rules(self, lottery_type: str, play_type: str = None) -> Dict[str, Any]:
+    def query_rules(self, lottery_type: str, play_type: Optional[str] = None) -> Dict[str, Any]:
         """
         查询规则
 

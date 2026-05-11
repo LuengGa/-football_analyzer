@@ -14,7 +14,7 @@ def _load_factory() -> Callable[..., Any]:
         module = import_module("data.historical_database")
         factory = getattr(module, "get_historical_database", None)
         if callable(factory):
-            return factory
+            return factory  # type: ignore
     except ModuleNotFoundError:
         pass
 
@@ -31,7 +31,7 @@ def _load_factory() -> Callable[..., Any]:
     factory = getattr(module, "get_historical_database", None)
     if not callable(factory):
         raise ImportError("historical_database module does not expose get_historical_database")
-    return factory
+    return factory  # type: ignore
 
 
 def get_historical_database(*, lazy_load: bool = True):

@@ -127,8 +127,8 @@ class GameTypeAnalyzer:
         self,
         game_type_id: str,
         match_data: Dict[str, Any],
-        six_layer_data: Dict[str, Any] = None,
-        market_odds: Dict[str, Any] = None
+        six_layer_data: Optional[Dict[str, Any]] = None,
+        market_odds: Optional[Dict[str, Any]] = None
     ) -> Optional[GameRecommendation]:
         """分析单个玩法"""
         game_type = self.game_type_manager.get_game_type(game_type_id)
@@ -166,9 +166,9 @@ class GameTypeAnalyzer:
     def _analyze_wdl(
         self,
         game_type,
-        all_probs: Dict,
-        market_odds: Dict = None,
-        six_layer_data: Dict = None
+        all_probs: Dict[Any, Any],
+        market_odds: Optional[Dict[Any, Any]] = None,
+        six_layer_data: Optional[Dict[Any, Any]] = None
     ) -> GameRecommendation:
         """分析胜平负玩法"""
         wdl_probs = all_probs["wdl"]
@@ -186,10 +186,10 @@ class GameTypeAnalyzer:
     def _analyze_handicap(
         self,
         game_type,
-        all_probs: Dict,
-        market_odds: Dict = None,
+        all_probs: Dict[Any, Any],
+        market_odds: Optional[Dict[Any, Any]] = None,
         handicap: float = 0.0,
-        six_layer_data: Dict = None
+        six_layer_data: Optional[Dict[Any, Any]] = None
     ) -> GameRecommendation:
         """分析让球玩法"""
         handicap_probs = all_probs["handicap"]
@@ -206,9 +206,9 @@ class GameTypeAnalyzer:
     def _analyze_total_goals(
         self,
         game_type,
-        all_probs: Dict,
-        market_odds: Dict = None,
-        six_layer_data: Dict = None
+        all_probs: Dict[Any, Any],
+        market_odds: Optional[Dict[Any, Any]] = None,
+        six_layer_data: Optional[Dict[Any, Any]] = None
     ) -> GameRecommendation:
         """分析总进球玩法"""
         total_probs = all_probs["total_goals"]
@@ -239,9 +239,9 @@ class GameTypeAnalyzer:
     def _analyze_both_teams_score(
         self,
         game_type,
-        all_probs: Dict,
-        market_odds: Dict = None,
-        six_layer_data: Dict = None
+        all_probs: Dict[Any, Any],
+        market_odds: Optional[Dict[Any, Any]] = None,
+        six_layer_data: Optional[Dict[Any, Any]] = None
     ) -> GameRecommendation:
         """分析双方进球玩法"""
         bts_probs = self.probability_engine.calculate_both_teams_score(1.5, 1.2)
@@ -256,9 +256,9 @@ class GameTypeAnalyzer:
     def _analyze_double_chance(
         self,
         game_type,
-        all_probs: Dict,
-        market_odds: Dict = None,
-        six_layer_data: Dict = None
+        all_probs: Dict[Any, Any],
+        market_odds: Optional[Dict[Any, Any]] = None,
+        six_layer_data: Optional[Dict[Any, Any]] = None
     ) -> GameRecommendation:
         """分析双重机会玩法"""
         wdl_probs = all_probs["wdl"]
@@ -274,9 +274,9 @@ class GameTypeAnalyzer:
     def _analyze_htft(
         self,
         game_type,
-        all_probs: Dict,
-        market_odds: Dict = None,
-        six_layer_data: Dict = None
+        all_probs: Dict[Any, Any],
+        market_odds: Optional[Dict[Any, Any]] = None,
+        six_layer_data: Optional[Dict[Any, Any]] = None
     ) -> GameRecommendation:
         """分析半全场玩法"""
         htft_probs = all_probs["htft"]
@@ -294,9 +294,9 @@ class GameTypeAnalyzer:
     def _analyze_correct_score(
         self,
         game_type,
-        all_probs: Dict,
-        market_odds: Dict = None,
-        six_layer_data: Dict = None
+        all_probs: Dict[Any, Any],
+        market_odds: Optional[Dict[Any, Any]] = None,
+        six_layer_data: Optional[Dict[Any, Any]] = None
     ) -> GameRecommendation:
         """分析比分玩法"""
         score_probs = all_probs["score"]
@@ -314,9 +314,9 @@ class GameTypeAnalyzer:
     def _analyze_updown(
         self,
         game_type,
-        all_probs: Dict,
-        market_odds: Dict = None,
-        six_layer_data: Dict = None
+        all_probs: Dict[Any, Any],
+        market_odds: Optional[Dict[Any, Any]] = None,
+        six_layer_data: Optional[Dict[Any, Any]] = None
     ) -> GameRecommendation:
         """分析上下单双玩法"""
         bd_probs = all_probs["bd_up_down"]
@@ -334,9 +334,9 @@ class GameTypeAnalyzer:
     def _analyze_generic(
         self,
         game_type,
-        all_probs: Dict,
-        market_odds: Dict = None,
-        six_layer_data: Dict = None
+        all_probs: Dict[Any, Any],
+        market_odds: Optional[Dict[Any, Any]] = None,
+        six_layer_data: Optional[Dict[Any, Any]] = None
     ) -> GameRecommendation:
         """通用玩法分析"""
         wdl_probs = all_probs["wdl"]

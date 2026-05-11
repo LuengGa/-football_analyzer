@@ -82,7 +82,8 @@ class ParlayFilterMatrix:
         elif parlay_type == "3x4" and n_matches == 3:
             # Three 2x1s
             per_bet_stake = total_stake / 4.0
-            for comb in itertools.combinations(matches, 2):
+            for comb_tup in itertools.combinations(matches, 2):
+                comb = list(comb_tup)  # type: ignore
                 combined_odds = comb[0]["odds"] * comb[1]["odds"]
                 combinations.append({
                     "type": "2x1",
