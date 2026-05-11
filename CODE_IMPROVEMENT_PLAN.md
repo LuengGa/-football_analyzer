@@ -48,11 +48,18 @@
 - **问题**: `mcp_tools.py` 导入了不存在的 `src.tools.execution` 模块
 - **修复**: 改为可选导入，提供模拟响应当依赖不可用时
 
-#### 1.9 类型注解改进
+#### 1.9 类型注解改进（第一部分）
 - **修复**: 更新了 [config_loader.py](file:///workspace/src/config/config_loader.py) 的类型注解
 - **修复**: 更新了 [elo_rating.py](file:///workspace/src/calculations/math/elo_rating.py) 的类型注解
 - **修复**: 更新了 [bayesian_xg.py](file:///workspace/src/tools/odds/bayesian_xg.py) 的类型注解
 - **结果**: Mypy 错误从 844 个减少到约 60 个
+
+#### 1.10 类型注解改进（第二部分）
+- **修复**: 更新了 [market_probability_engine.py](file:///workspace/src/calculations/odds/market_probability_engine.py) 的类型注解
+- **修复**: 更新了 [historical_impact.py](file:///workspace/src/calculations/history/historical_impact.py) 的类型注解
+- **修复**: 更新了 [analytics.py](file:///workspace/src/core/historical_data/analytics.py) 的类型注解
+- **结果**: 修复了约 30+ 个 mypy 错误
+---
 
 ---
 

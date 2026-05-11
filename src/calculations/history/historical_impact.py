@@ -35,20 +35,19 @@ def build_historical_impact(
     }
 
     try:
-        cal = analysis.get("calibration_info") if isinstance(analysis.get("calibration_info"), dict) else {}
-        hist_dist = cal.get("hist_distribution") if isinstance(cal.get("hist_distribution"), dict) else {}
-        ls = analysis.get("league_stats") if isinstance(analysis.get("league_stats"), dict) else {}
-        sample_size = cal.get("sample_size") if isinstance(cal.get("sample_size"), int) else ls.get("sample_size")
-        league_stats_out = {
-            "sample_size": int(sample_size) if isinstance(sample_size, (int, float)) else 0,
-            "home_win_rate": float(hist_dist.get("home")) if isinstance(hist_dist.get("home"), (int, float)) else None,
-            "draw_rate": float(ls.get("draw_rate"))
-            if isinstance(ls.get("draw_rate"), (int, float))
-            else (float(hist_dist.get("draw")) if isinstance(hist_dist.get("draw"), (int, float)) else None),
-            "away_win_rate": float(hist_dist.get("away")) if isinstance(hist_dist.get("away"), (int, float)) else None,
-            "avg_total_goals": float(ls.get("avg_goals")) if isinstance(ls.get("avg_goals"), (int, float)) else None,
-            "over_2_5_rate": float(ls.get("over_2_5_rate")) if isinstance(ls.get("over_2_5_rate"), (int, float)) else None,
-            "btts_yes_rate": float(ls.get("btts_rate")) if isinstance(ls.get("btts_rate"), (int, float)) else None,
+        cal: Dict[Any, Any] = analysis.get("calibration_info") if isinstance(analysis.get("calibration_info"), dict) else {}
+        hist_dist: Dict[Any, Any] = cal.get("hist_distribution") if isinstance(cal.get("hist_distribution"), dict) else {}
+        ls: Dict[Any, Any] = analysis.get("league_stats") if isinstance(analysis.get("league_stats"), dict) else {}
+        sample_size_val = cal.get("sample_size") if isinstance(cal.get("sample_size"), int) else ls.get("sample_size")
+        league_stats_out: Dict[str, Any] = {
+            "sample_size": int(sample_size_val) if isinstance(sample_size_val, (int, float)) else 0,
+            "home_win_rate": float(hist_dist["home"]) if (hist_dist.get("home") is not None and isinstance(hist_dist["home"], (int, float))) else None,
+            "draw_rate": float(ls["draw_rate"]) if (ls.get("draw_rate") is not None and isinstance(ls["draw_rate"], (int, float)))
+            else (float(hist_dist["draw"]) if (hist_dist.get("draw") is not None and isinstance(hist_dist["draw"], (int, float))) else None),
+            "away_win_rate": float(hist_dist["away"]) if (hist_dist.get("away") is not None and isinstance(hist_dist["away"], (int, float))) else None,
+            "avg_total_goals": float(ls["avg_goals"]) if (ls.get("avg_goals") is not None and isinstance(ls["avg_goals"], (int, float))) else None,
+            "over_2_5_rate": float(ls["over_2_5_rate"]) if (ls.get("over_2_5_rate") is not None and isinstance(ls["over_2_5_rate"], (int, float))) else None,
+            "btts_yes_rate": float(ls["btts_rate"]) if (ls.get("btts_rate") is not None and isinstance(ls["btts_rate"], (int, float))) else None,
         }
         out["league_stats"] = league_stats_out
         calibrated = bool(cal.get("calibrated")) if isinstance(cal, dict) else False
@@ -58,10 +57,12 @@ def build_historical_impact(
             "historical_weight": cal.get("historical_weight"),
             "calibrated": calibrated,
         }
-        if isinstance(league_stats_out.get("sample_size"), int) and league_stats_out["sample_size"] <= 0:
+        ss_val = league_stats_out.get("sample_size")
+        if isinstance(ss_val, int) and ss_val <= 0:
             out["degradations"].append("league_stats_unavailable")
-        if not calibrated and isinstance(cal.get("reason"), str) and cal.get("reason"):
-            out["degradations"].append(f"market_calibration:{cal.get('reason')}")
+        reason_val = cal.get("reason") if isinstance(cal, dict) else None
+        if not calibrated and isinstance(reason_val, str) and reason_val:
+            out["degradations"].append(f"market_calibration:{reason_val}")
     except Exception:
         out["degradations"].append("historical_impact_parse_error")
 

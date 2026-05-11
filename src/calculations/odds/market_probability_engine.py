@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 
 @dataclass(frozen=True)
@@ -8,12 +8,14 @@ class MarketProbabilityEngine:
     max_goals: int = 7
     max_score: int = 6
 
-    def implied_probabilities_from_odds(self, odds: Dict[str, Optional[float]]) -> Dict[str, float]:
+    def implied_probabilities_from_odds(self, odds: Dict[str, Optional[Any]]) -> Dict[str, float]:
         inv: Dict[str, float] = {}
         for k, v in (odds or {}).items():
+            if v is None:
+                continue
             try:
                 fv = float(v)
-            except Exception:
+            except (TypeError, ValueError):
                 continue
             if fv <= 0:
                 continue

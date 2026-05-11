@@ -103,17 +103,20 @@ class HistoricalDataAnalyzer:
                 return str(path)
         return str(possible_paths[0])
 
-    def load_raw_matches(self) -> List:
+    def load_raw_matches(self) -> List[Any]:
         """直接从JSON加载原始数据"""
         if self._cache.get('raw_matches'):
             return self._cache['raw_matches']
 
         import json
-        with open(self._data_path, 'r') as f:
-            data = json.load(f)
-        matches = data.get('matches', [])
-        self._cache['raw_matches'] = matches
-        return matches
+        try:
+            with open(self._data_path, 'r') as f:
+                data = json.load(f)
+            matches = data.get('matches', [])
+            self._cache['raw_matches'] = matches
+            return matches
+        except Exception:
+            return []
 
     def get_data_overview(self) -> Dict[str, Any]:
         """获取数据概览"""
@@ -143,7 +146,7 @@ class HistoricalDataAnalyzer:
             'leagues': leagues,
         }
 
-    def analyze_asian_handicap(self, matches: List = None) -> Dict[str, Any]:
+    def analyze_asian_handicap(self, matches: Optional[List[Any]] = None) -> Dict[str, Any]:
         """分析亚洲盘价值"""
         if matches is None:
             matches = self.load_raw_matches()
@@ -184,7 +187,7 @@ class HistoricalDataAnalyzer:
             'home_favored_pct': sum(1 for m in asian_matches if m['home_favored']) / len(asian_matches),
         }
 
-    def analyze_over_under(self, matches: List = None, line: int = 2.5) -> Dict[str, Any]:
+    def analyze_over_under(self, matches: Optional[List[Any]] = None, line: float = 2.5) -> Dict[str, Any]:
         """分析大小球价值"""
         if matches is None:
             matches = self.load_raw_matches()
@@ -225,7 +228,7 @@ class HistoricalDataAnalyzer:
             'avg_over_odds': sum(m['over_odds'] for m in ou_matches) / len(ou_matches),
         }
 
-    def analyze_odds_movement(self, matches: List = None) -> Dict[str, Any]:
+    def analyze_odds_movement(self, matches: Optional[List[Any]] = None) -> Dict[str, Any]:
         """分析赔率变化价值"""
         if matches is None:
             matches = self.load_raw_matches()
@@ -271,13 +274,13 @@ class HistoricalDataAnalyzer:
         
         return result
 
-    def get_half_time_stats(self, matches: List = None) -> Dict[str, Any]:
+    def get_half_time_stats(self, matches: Optional[List[Any]] = None) -> Dict[str, Any]:
         """获取半场统计"""
         if matches is None:
             matches = self.load_raw_matches()
         
-        ht_results = {'H': 0, 'D': 0, 'A': 0}
-        ht_ft = {}
+        ht_results: Dict[str, int] = {'H': 0, 'D': 0, 'A': 0}
+        ht_ft: Dict[str, int] = {}
         total = 0
         
         for m in matches:
@@ -303,13 +306,13 @@ class HistoricalDataAnalyzer:
         
         return result
 
-    def get_score_distribution(self, matches: List = None) -> Dict[str, Any]:
+    def get_score_distribution(self, matches: Optional[List[Any]] = None) -> Dict[str, Any]:
         """获取比分分布"""
         if matches is None:
             matches = self.load_raw_matches()
         
-        score_dist = defaultdict(int)
-        goal_dist = defaultdict(int)
+        score_dist: Dict[str, int] = defaultdict(int)
+        goal_dist: Dict[int, int] = defaultdict(int)
         
         for m in matches:
             hg = m.get('home_goals', 0) or 0
