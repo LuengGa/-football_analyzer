@@ -1,5 +1,5 @@
 import math
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 class BayesianXGModel:
     """
@@ -11,7 +11,7 @@ class BayesianXGModel:
     """
     
     @staticmethod
-    def adjust_xg_for_injuries(base_xg: float, injuries: List[Dict]) -> float:
+    def adjust_xg_for_injuries(base_xg: float, injuries: Optional[List[Dict[Any, Any]]]) -> float:
         """
         根据伤停名单衰减 xG
         伤停列表里如果包含 'Forward' 或 'Midfielder' 并且状态是 'Out'，则衰减进攻火力。
@@ -34,7 +34,7 @@ class BayesianXGModel:
         return base_xg * (1.0 - decay)
         
     @staticmethod
-    def calculate_bayesian_xg(team_stats: Dict, league_avg: float, injuries: List[Dict] = None) -> float:
+    def calculate_bayesian_xg(team_stats: Dict[Any, Any], league_avg: float, injuries: Optional[List[Dict[Any, Any]]] = None) -> float:
         """
         计算贝叶斯平滑后的 xG
         """

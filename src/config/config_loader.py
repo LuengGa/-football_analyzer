@@ -4,9 +4,10 @@ Config Loader - 配置加载器
 """
 import os
 from pathlib import Path
+from typing import Any, Dict, Optional
 
 
-def load_env_file(env_path: str = None):
+def load_env_file(env_path: Optional[str] = None):
     """
     手动加载 .env 文件到环境变量
     
@@ -44,7 +45,7 @@ def load_env_file(env_path: str = None):
         print(f"[ConfigLoader] 未找到 .env 文件: {env_path}")
 
 
-def get_config(key: str, default=None) -> str:
+def get_config(key: str, default: Optional[str] = None) -> Optional[str]:
     """
     获取配置值
     
@@ -58,7 +59,7 @@ def get_config(key: str, default=None) -> str:
     return os.getenv(key, default)
 
 
-def get_all_api_keys() -> dict:
+def get_all_api_keys() -> Dict[str, Optional[str]]:
     """获取所有API Key"""
     return {
         "FOOTBALL_DATA_API_KEY": get_config("FOOTBALL_DATA_API_KEY"),

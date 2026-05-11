@@ -2,6 +2,8 @@
 EloRating - ELO评分系统
 用于计算和更新球队的ELO评分
 """
+from typing import Dict, Optional
+
 
 class EloRating:
     """ELO评分系统"""
@@ -27,8 +29,8 @@ class EloRating:
         self,
         home_rating: float,
         away_rating: float,
-        result: str = None
-    ) -> dict:
+        result: Optional[str] = None
+    ) -> Dict[str, float]:
         """更新两队的ELO评分"""
         expected_home = self.calculate_expectation(home_rating, away_rating)
         expected_away = 1 - expected_home
@@ -58,7 +60,7 @@ class EloRating:
             "expected_away": round(expected_away, 4)
         }
     
-    def predict_match(self, home_rating: float, away_rating: float) -> dict:
+    def predict_match(self, home_rating: float, away_rating: float) -> Dict[str, float]:
         """预测比赛结果"""
         expected_home = self.calculate_expectation(home_rating, away_rating)
         expected_draw = 0.25  # 平局概率估算
