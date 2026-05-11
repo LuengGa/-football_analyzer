@@ -48,9 +48,9 @@ class AdvancedBacktestResult:
     sharpe_ratio: float = 0.0
     profit_factor: float = 0.0
     cagr: float = 0.0
-    bets_by_league: Dict[str, Dict] = None
-    monthly_returns: Dict[str, float] = None
-    bets: List[AdvancedBet] = None
+    bets_by_league: Optional[Dict[str, Dict[Any, Any]]] = None
+    monthly_returns: Optional[Dict[str, float]] = None
+    bets: Optional[List[AdvancedBet]] = None
 
 class AdvancedBacktestEngine:
     """专业级回测引擎"""

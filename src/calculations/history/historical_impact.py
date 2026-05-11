@@ -35,9 +35,9 @@ def build_historical_impact(
     }
 
     try:
-        cal: Dict[Any, Any] = analysis.get("calibration_info") if isinstance(analysis.get("calibration_info"), dict) else {}
-        hist_dist: Dict[Any, Any] = cal.get("hist_distribution") if isinstance(cal.get("hist_distribution"), dict) else {}
-        ls: Dict[Any, Any] = analysis.get("league_stats") if isinstance(analysis.get("league_stats"), dict) else {}
+        cal: Dict[Any, Any] = analysis.get("calibration_info", {}) if isinstance(analysis.get("calibration_info"), dict) else {}
+        hist_dist: Dict[Any, Any] = cal.get("hist_distribution", {}) if isinstance(cal.get("hist_distribution"), dict) else {}
+        ls: Dict[Any, Any] = analysis.get("league_stats", {}) if isinstance(analysis.get("league_stats"), dict) else {}
         sample_size_val = cal.get("sample_size") if isinstance(cal.get("sample_size"), int) else ls.get("sample_size")
         league_stats_out: Dict[str, Any] = {
             "sample_size": int(sample_size_val) if isinstance(sample_size_val, (int, float)) else 0,
@@ -108,7 +108,7 @@ def build_historical_impact(
 
 
 def to_explain_item(historical_impact: Dict[str, Any]) -> Dict[str, Any]:
-    sim = historical_impact.get("similar_odds") if isinstance(historical_impact.get("similar_odds"), dict) else {}
+    sim: Dict[str, Any] = historical_impact.get("similar_odds") if isinstance(historical_impact.get("similar_odds"), dict) else {}
     return {
         "type": "historical_impact",
         "summary": {

@@ -189,7 +189,7 @@ class CornersPredictor:
         )
     
     def _calculate_corner_distribution(self, lambda_h: float, lambda_a: float) -> Dict[int, float]:
-        total_dist = defaultdict(float)
+        total_dist: Dict[int, float] = defaultdict(float)
         for h in range(self.max_corners + 1):
             for a in range(self.max_corners + 1):
                 prob_h = self._poisson(lambda_h, h)

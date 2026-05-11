@@ -27,7 +27,7 @@ class MemoryRetriever:
             or f"{league_code} {home} vs {away} {kickoff} 赛前赛后复盘要点与投注经验"
         )
 
-        where = {"type": {"$eq": "match_summary"}}
+        where: Dict[str, Any] = {"type": {"$eq": "match_summary"}}
         if league_code and league_code != "UNK":
             where = {"$and": [{"type": {"$eq": "match_summary"}}, {"league_code": {"$eq": league_code}}]}
 

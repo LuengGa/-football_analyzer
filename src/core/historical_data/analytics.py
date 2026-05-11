@@ -15,7 +15,7 @@
 - 2003-2026年
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, cast
 from dataclasses import dataclass
 from datetime import datetime
 from collections import defaultdict
@@ -233,8 +233,8 @@ class HistoricalDataAnalyzer:
         if matches is None:
             matches = self.load_raw_matches()
         
-        home_favored = []
-        away_favored = []
+        home_favored: List[Dict[str, Any]] = []
+        away_favored: List[Dict[str, Any]] = []
         
         for m in matches:
             om = m.get('odds_movement', {})
@@ -250,7 +250,7 @@ class HistoricalDataAnalyzer:
                     elif change > 0:
                         away_favored.append({'actual': actual, 'prob': closing_prob})
         
-        result = {'total': len(home_favored) + len(away_favored)}
+        result: Dict[str, Any] = {'total': len(home_favored) + len(away_favored)}
         
         if home_favored:
             actual = sum(m['actual'] for m in home_favored) / len(home_favored)
@@ -440,8 +440,8 @@ class HistoricalDataAnalyzer:
         if not league_matches:
             return {"count": 0}
 
-        features = [self.extract_features(m) for m in league_matches]
-        features = [f for f in features if f]
+        raw_features = [self.extract_features(m) for m in league_matches]
+        features: List[MatchFeatures] = [f for f in raw_features if f is not None]
 
         if not features:
             return {"count": 0}
@@ -510,8 +510,8 @@ class HistoricalDataAnalyzer:
         if not team_matches:
             return {"name": team_name, "matches": 0}
 
-        features = [self.extract_features(m) for m in team_matches]
-        features = [f for f in features if f]
+        raw_features = [self.extract_features(m) for m in team_matches]
+        features: List[MatchFeatures] = [f for f in raw_features if f is not None]
 
         home_matches = [f for f in features if f.home_team.lower() == team_name.lower()]
         away_matches = [f for f in features if f.away_team.lower() == team_name.lower()]
@@ -554,8 +554,8 @@ class HistoricalDataAnalyzer:
         """获取赔率分布"""
         league_matches = [m for m in matches if self._get_league(m) == league_code]
 
-        features = [self.extract_features(m) for m in league_matches]
-        features = [f for f in features if f]
+        raw_features = [self.extract_features(m) for m in league_matches]
+        features: List[MatchFeatures] = [f for f in raw_features if f is not None]
 
         if not features:
             return {"count": 0}
