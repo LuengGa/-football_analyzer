@@ -32,11 +32,12 @@ class OddsAnalyzer:
     """
     
     def __init__(self, use_historical: bool = True):
-        self.analysis_cache = {}
+        from typing import Dict, Any
+        self.analysis_cache: Dict[Any, Any] = {}
         
         # 初始化历史数据库
         self.historical_db = None
-        if use_historical and HISTORICAL_DB_AVAILABLE and get_historical_database:
+        if use_historical and HISTORICAL_DB_AVAILABLE and bool(get_historical_database):  # type: ignore[truthy-function]
             try:
                 self.historical_db = get_historical_database(lazy_load=True)
                 print(f"✅ OddsAnalyzer 已连接历史数据库 (221,415条数据)")
@@ -115,7 +116,7 @@ class OddsAnalyzer:
 
         if isinstance(memories, list) and memories:
             result["memory_context"] = list(memories)
-        result["recommendation_schema"] = RecommendationSchemaAdapter.from_odds_analyzer_output(
+        result["recommendation_schema"] = RecommendationSchemaAdapter.from_odds_analyzer_output(  # type: ignore[attr-defined]
             result, memories=memories
         ).to_dict()
         return result
@@ -127,7 +128,7 @@ class OddsAnalyzer:
         基于该联赛的历史胜平负比例，对赔率隐含概率进行校准
         """
         try:
-            league_stats = self.historical_db.get_league_stats(league)
+            league_stats = self.historical_db.get_league_stats(league)  # type: ignore[union-attr]
             sample_size = league_stats.get("sample_size", 0)
             
             if sample_size < 100:

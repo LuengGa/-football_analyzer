@@ -217,7 +217,7 @@ class TaskQueue:
             UPDATE tasks SET status = ?, completed_at = ?, result = ?
             WHERE id = ?
         """, (TaskStatus.COMPLETED.value, datetime.now().isoformat(), json.dumps(result), task_id))
-        self._conn.commit()
+        self._conn.commit()  # type: ignore[union-attr]
         logger.info(f"Task {task_id} completed")
 
     def fail(self, task_id: str, error: str) -> None:
@@ -229,20 +229,20 @@ class TaskQueue:
                 UPDATE tasks SET status = ?, error = ?, retry_count = retry_count + 1
                 WHERE id = ?
             """, (TaskStatus.RETRY.value, error, task_id))
-            self._conn.commit()
+            self._conn.commit()  # type: ignore[union-attr]
             logger.info(f"Task {task_id} scheduled for retry ({row[0]+1}/{row[1]})")
         else:
             cursor.execute("""
                 UPDATE tasks SET status = ?, error = ?, completed_at = ?
                 WHERE id = ?
             """, (TaskStatus.FAILED.value, error, datetime.now().isoformat(), task_id))
-            self._conn.commit()
+            self._conn.commit()  # type: ignore[union-attr]
             logger.error(f"Task {task_id} failed: {error}")
 
     def cancel(self, task_id: str) -> bool:
         cursor = self._conn.cursor()  # type: ignore[union-attr]
         cursor.execute("UPDATE tasks SET status = ? WHERE id = ? AND status = 'pending'", (TaskStatus.CANCELLED.value, task_id))
-        self._conn.commit()
+        self._conn.commit()  # type: ignore[union-attr]
         return cursor.rowcount > 0
 
     def get_task(self, task_id: str) -> Optional[Task]:
@@ -252,7 +252,7 @@ class TaskQueue:
         return Task.from_row(row) if row else None
 
     def list_tasks(self, status: Optional[str] = None, limit: int = 50) -> List[Task]:
-        cursor = self._conn.cursor()
+        cursor = self._conn.cursor()  # type: ignore[union-attr]
         if status:
             cursor.execute("SELECT * FROM tasks WHERE status = ? ORDER BY created_at DESC LIMIT ?", (status, limit))
         else:

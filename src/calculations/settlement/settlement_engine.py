@@ -84,7 +84,7 @@ class SettlementEngine:
                 "JINGCAI_GOALS": goals,
                 "JINGCAI_CS": cs,
                 "JINGCAI_HTFT": htft,
-                "JINGCAI_MIXED_PARLAY": {
+                "JINGCAI_MIXED_PARLAY": {  # type: ignore[dict-item]
                     "WDL": wdl,
                     "JINGCAI_HANDICAP_WDL": jingcai_handicap_wdl,
                     "GOALS": goals,

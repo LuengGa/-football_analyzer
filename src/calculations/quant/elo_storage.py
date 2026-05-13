@@ -155,7 +155,7 @@ class ELOStorage:
             return []
         try:
             with open(self._history_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                return json.load(f)  # type: ignore[no-any-return]
         except (json.JSONDecodeError, IOError) as e:
             logger.warning(f"[ELO Storage] history.json 读取失败: {e}")
             return []

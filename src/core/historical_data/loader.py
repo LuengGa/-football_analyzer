@@ -203,7 +203,7 @@ class HistoricalDataLoader:
         """加载JSON数据并缓存"""
         try:
             with open(self.data_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                return json.load(f)  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"Failed to load JSON data: {e}")
             return {}

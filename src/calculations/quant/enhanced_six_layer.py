@@ -262,9 +262,10 @@ class EnhancedSixLayerAnalyzer:
     
     def _find_value_opportunity(self, match: HistoricalMatch, result: SixLayerResult) -> Dict:
         """Layer 6: 价值机会发现 - 综合以上五层"""
+        from typing import Any
         # 计算综合信号
-        signals = []
-        confidence_factors = []
+        signals: List[Any] = []
+        confidence_factors: List[Any] = []
         
         # 从资金流向获取信号
         if result.layer4_fund_flow:
@@ -323,11 +324,11 @@ class EnhancedSixLayerAnalyzer:
         # 简化EV计算
         # 真实EV需要准确模型，这里只是示意
         if signal == 'home':
-            return (0.5 * (odds['home'] - 1)) - 0.5
+            return (0.5 * (odds['home'] - 1)) - 0.5  # type: ignore[no-any-return]
         elif signal == 'draw':
-            return (0.33 * (odds['draw'] - 1)) - 0.67
+            return (0.33 * (odds['draw'] - 1)) - 0.67  # type: ignore[no-any-return]
         else:
-            return (0.5 * (odds['away'] - 1)) - 0.5
+            return (0.5 * (odds['away'] - 1)) - 0.5  # type: ignore[no-any-return]
     
     def _generate_recommendation(self, match: HistoricalMatch, result: SixLayerResult) -> Tuple[float, Optional[str], str]:
         """生成最终推荐"""

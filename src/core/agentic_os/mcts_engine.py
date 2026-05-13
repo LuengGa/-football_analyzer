@@ -121,7 +121,7 @@ class FootballGameState:
     
     def is_terminal(self) -> bool:
         """检查是否为终止状态（比赛结束）"""
-        return self.minute >= 90
+        return self.minute >= 90  # type: ignore[no-any-return]
     
     def get_possible_actions(self) -> List[str]:
         """获取当前状态下可能的动作"""

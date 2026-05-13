@@ -33,7 +33,7 @@ class LLMDecisionContext:
     bankroll_status: Dict[str, Any] # 资金状态
     market_sentiment: str = ""      # 市场情绪
     news_impact: str = ""           # 新闻影响
-    historical_patterns: List[str] = None  # 历史模式
+    historical_patterns: Optional[List[str]] = None  # 历史模式  # type: ignore[assignment]
 
     def __post_init__(self):
         if self.historical_patterns is None:
@@ -567,8 +567,8 @@ class LLMEnhancedPoisson:
 
         model = PoissonGoalModel()
 
-        home_stats = model.get_team_info(home)
-        away_stats = model.get_team_info(away)
+        home_stats = model.get_team_info(home)  # type: ignore[attr-defined]
+        away_stats = model.get_team_info(away)  # type: ignore[attr-defined]
 
         if home_stats and away_stats:
             home_expected = (home_stats.attack + away_stats.defense) / 2

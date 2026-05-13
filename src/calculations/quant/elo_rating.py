@@ -84,7 +84,7 @@ class ELORatingSystem:
         计算 A 对 B 的期望得分（0-1）。
         E_A = 1 / (1 + 10^((E_B - E_A) / 400))
         """
-        return 1.0 / (1.0 + 10.0 ** ((elo_b - elo_a) / ELORatingSystem.SCALE_FACTOR))
+        return 1.0 / (1.0 + 10.0 ** ((elo_b - elo_a) / ELORatingSystem.SCALE_FACTOR))  # type: ignore[no-any-return]
     
     def _get_k(self, team: str, league: str = "") -> float:
         """

@@ -175,7 +175,7 @@ class LLMDataManager:
         if total == 0:
             return 0.7
         
-        return stats["success_count"] / total
+        return stats["success_count"] / total  # type: ignore[no-any-return]
     
     def _format_data(self, data: Any) -> str:
         """格式化数据"""

@@ -253,8 +253,8 @@ class ELOCalibrator:
                 "away_win": self._global_a,
             }
         
-        slope_h, intercept_h = self._lr_h
-        slope_a, intercept_a = self._lr_a
+        slope_h, intercept_h = self._lr_h  # type: ignore[misc]
+        slope_a, intercept_a = self._lr_a  # type: ignore[misc]
         
         p_h = self._sigmoid(slope_h * elo_diff + intercept_h)
         p_a = self._sigmoid(slope_a * elo_diff + intercept_a)

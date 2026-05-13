@@ -348,7 +348,8 @@ class MemorySearch:
                 return {"total": 0, "by_category": {}}
             cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute("SELECT COUNT(*) FROM memory_records")
-            total = cursor.fetchone()[0] if cursor.fetchone else 0
+            row = cursor.fetchone()
+            total = row[0] if row else 0  # type: ignore[truthy-function]
             cursor.execute("SELECT category, COUNT(*) FROM memory_records GROUP BY category")
             by_category = dict(cursor.fetchall())
             return {"total": total, "by_category": by_category}

@@ -250,7 +250,7 @@ class FeatureExtractor:
     def _get_h2h_stats(self, home_team: str, away_team: str) -> Dict:
         """获取交锋历史统计"""
         key = tuple(sorted([home_team, away_team]))
-        matches = self.h2h_history.get(key, [])
+        matches = self.h2h_history.get(key, [])  # type: ignore[arg-type]
         
         h2h_home_wins = 0
         h2h_draws = 0
