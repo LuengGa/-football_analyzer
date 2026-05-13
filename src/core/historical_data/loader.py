@@ -218,12 +218,12 @@ class HistoricalDataLoader:
 
         data = self._load_json_data()
         self._metadata = data.get("metadata", {})
-        return self._metadata
+        return self._metadata  # type: ignore[no-any-return]
 
     def load_stats(self) -> Dict[str, Any]:
         """加载统计数据"""
         data = self._load_json_data()
-        return data.get("stats", {})
+        return data.get("stats", {})  # type: ignore[no-any-return]
 
     def load_all(self, force_reload: bool = False) -> List[MatchRecord]:
         """加载所有比赛记录"""

@@ -95,7 +95,7 @@ class MemorySearch:
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_category ON memory_records(category)")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_created ON memory_records(created_at)")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_content_lower ON memory_records(content_lower)")
-            self._conn.commit()
+            self._conn.commit()  # type: ignore[union-attr]
             logger.info(f"AI原生记忆搜索系统初始化完成: {self.db_path}")
         except sqlite3.Error as e:
             logger.error(f"记忆搜索数据库初始化失败: {e}")
@@ -123,7 +123,7 @@ class MemorySearch:
                 key, content, content.lower(), category, json.dumps(tags),
                 importance, now, now, json.dumps(metadata), ai_insight, json.dumps(related)
             ))
-            self._conn.commit()
+            self._conn.commit()  # type: ignore[union-attr]
 
             self._update_relation_graph(key, related)
             logger.info(f"记忆已添加 (带AI洞察): {key}")
@@ -283,7 +283,7 @@ class MemorySearch:
     def get_memory(self, key: str) -> Optional[MemoryRecord]:
         """获取单个记忆"""
         try:
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute("""
                 SELECT id, key, raw_content, category, tags, importance,
                        created_at, metadata, ai_insight, related_memories

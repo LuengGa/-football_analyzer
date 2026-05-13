@@ -6,11 +6,11 @@ from datetime import datetime
 from pathlib import Path
 
 try:
-    from .hippocampus import HippocampusMemory
-    from .evolution_engine import EvolutionEngine
+    from .hippocampus import HippocampusMemory as _HippocampusMemory  # type: ignore[no-redef]
+    from .evolution_engine import EvolutionEngine as _EvolutionEngine  # type: ignore[no-redef]
 except ImportError:
-    from hippocampus import HippocampusMemory
-    from evolution_engine import EvolutionEngine
+    from hippocampus import HippocampusMemory as _HippocampusMemory  # type: ignore[no-redef]
+    from evolution_engine import EvolutionEngine as _EvolutionEngine  # type: ignore[no-redef]
 
 
 _AGENTIC_OS_DIR = Path(__file__).resolve().parent

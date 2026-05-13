@@ -26,10 +26,11 @@ class ConfigSection:
 class ConfigManager:
     _instance = None
 
+    _initialized: bool = False
+
     def __new__(cls, config_dir: Optional[str] = None):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance._initialized: bool = False  # type: ignore[has-type]
         return cls._instance
 
     def __init__(self, config_dir: Optional[str] = None):
@@ -44,7 +45,7 @@ class ConfigManager:
         self._config: Dict[str, Any] = {}
         self._sections: Dict[str, ConfigSection] = {}
         self._load_all()
-        self._initialized = True  # type: ignore[has-type]
+        self._initialized = True
 
     def _find_config_dir(self) -> Path:
         current = Path(__file__).resolve()
@@ -72,7 +73,7 @@ class ConfigManager:
     def _load_json(self, file_path: Path) -> Dict[str, Any]:
         try:
             with open(file_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                return json.load(f)  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"Failed to load JSON {file_path}: {e}")
             return {}
@@ -141,7 +142,7 @@ class ConfigManager:
         return value
 
     def get_section(self, section: str) -> Dict[str, Any]:
-        return self._config.get(section, {})
+        return self._config.get(section, {})  # type: ignore[no-any-return]
 
     def get_all(self) -> Dict[str, Any]:
         return self._config.copy()

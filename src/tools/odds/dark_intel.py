@@ -52,7 +52,7 @@ class DarkIntelExtractor:
             )
             result = json.loads(response.choices[0].message.content)
             print(f"    [🕵️ Dark Intel] 情绪得分: {result.get('sentiment_score')}, xG 修正: {result.get('xg_modifier')}")
-            return result
+            return result  # type: ignore[no-any-return]
         except Exception as e:
             return {"sentiment_score": 0.0, "xg_modifier": 0.0, "reasoning": f"分析失败: {e}"}
 

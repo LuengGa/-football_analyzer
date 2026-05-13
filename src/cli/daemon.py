@@ -62,13 +62,13 @@ def run(argv: Optional[List[str]] = None, *, stdout: Optional[TextIO] = None) ->
         res = daemon_status()
         out.write(json.dumps(res, ensure_ascii=False) + "\n")
         out.flush()
-        return res
+        return res  # type: ignore[no-any-return]
 
     if args.cmd == "stop":
         res = stop_daemon(timeout_s=float(args.timeout_s))
         out.write(json.dumps(res, ensure_ascii=False) + "\n")
         out.flush()
-        return res
+        return res  # type: ignore[no-any-return]
 
     if args.cmd == "start":
         res = start_daemon(
@@ -82,7 +82,7 @@ def run(argv: Optional[List[str]] = None, *, stdout: Optional[TextIO] = None) ->
         )
         out.write(json.dumps(res, ensure_ascii=False) + "\n")
         out.flush()
-        return res
+        return res  # type: ignore[no-any-return]
 
     if args.cmd != "run":
         raise ValueError(f"unknown cmd: {args.cmd}")
@@ -94,7 +94,7 @@ def run(argv: Optional[List[str]] = None, *, stdout: Optional[TextIO] = None) ->
             await _emit(out, event, pretty=bool(args.pretty))
 
         for t in ("ODDS_DAEMON_STARTED", "ODDS_TICK", "ODDS_ALERT", "ODDS_UNAVAILABLE", "ODDS_DAEMON_STOPPED"):
-            await bus.subscribe(t, printer)
+            bus.subscribe(t, printer)  # type: ignore[func-returns-value]
 
         daemon = RealTimeOddsDaemon(
             match_id=str(args.match_id),
@@ -106,7 +106,7 @@ def run(argv: Optional[List[str]] = None, *, stdout: Optional[TextIO] = None) ->
             water_drop_threshold=float(args.water_drop_threshold),
             baseline_home_odds=args.baseline_home_odds,
         )
-        return await daemon.run(max_ticks=args.max_ticks)
+        return await daemon.run(max_ticks=args.max_ticks)  # type: ignore[no-any-return]
 
     return asyncio.run(_main())
 

@@ -265,7 +265,7 @@ class EnhancedSixLayerAnalyzer:
         from typing import Any
         # 计算综合信号
         signals: List[Any] = []
-        confidence_factors: List[Any] = []
+        confidence_factors: List[Any] = []  # type: ignore[var-annotated]
         
         # 从资金流向获取信号
         if result.layer4_fund_flow:
@@ -300,7 +300,7 @@ class EnhancedSixLayerAnalyzer:
         if not signals:
             return None
         
-        scores = defaultdict(float)
+        scores: Dict[str, float] = defaultdict(float)
         for result, weight in signals:
             scores[result] += weight
         

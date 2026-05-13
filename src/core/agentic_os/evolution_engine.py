@@ -3,8 +3,10 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+knowledge_base_dir: Any = None
 try:
-    from src.tools.odds.paths import knowledge_base_dir
+    from src.tools.odds.paths import knowledge_base_dir as _knowledge_base_dir
+    knowledge_base_dir = _knowledge_base_dir
 except ImportError:
     knowledge_base_dir = lambda *args: Path(__file__).resolve().parent.parent.parent / "workspace" / "orchestrator" / "knowledge_base"
 

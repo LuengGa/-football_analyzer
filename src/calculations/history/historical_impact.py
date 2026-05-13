@@ -108,7 +108,8 @@ def build_historical_impact(
 
 
 def to_explain_item(historical_impact: Dict[str, Any]) -> Dict[str, Any]:
-    sim: Dict[str, Any] = historical_impact.get("similar_odds") if isinstance(historical_impact.get("similar_odds"), dict) else {}
+    sim_raw = historical_impact.get("similar_odds")
+    sim: Dict[str, Any] = sim_raw if isinstance(sim_raw, dict) else {}
     return {
         "type": "historical_impact",
         "summary": {

@@ -184,7 +184,7 @@ class EnhancedExecutionEngine:
             decision["selection"] = "home" if edge_home > edge_away else "away"
             decision["reasoning"] = f"价值边缘 {best_edge:.1%}，六层分析 {six_layer_score:.0%}，符合投注标准"
             decision["risk_factors"] = ["市场波动", "球队状态变化"]
-            decision["recommended_stake"] = float(decision["confidence"]) * 0.1  # type: ignore[operator]
+            decision["recommended_stake"] = float(decision["confidence"]) * 0.1  # type: ignore[arg-type]
         else:
             decision["reasoning"] = f"价值不足 {best_edge:.1%} 或分析评分 {six_layer_score:.0%} 不够"
             decision["risk_factors"] = ["价值不足"]

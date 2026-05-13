@@ -170,7 +170,7 @@ class FTS5MemorySearch:
             params.append(limit)
 
             sql = " ".join(sql_parts)
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute(sql, params)
 
             results = []

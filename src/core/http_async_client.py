@@ -275,7 +275,7 @@ class AsyncAPIFootballClient:
         
         response = await self.http.get(f"{self.BASE_URL}/fixtures", params=params)
         response.raise_for_status()
-        return response.json()
+        return response.json()  # type: ignore[no-any-return]
     
     async def get_odds(
         self,
@@ -289,7 +289,7 @@ class AsyncAPIFootballClient:
         
         response = await self.http.get(f"{self.BASE_URL}/odds", params=params)
         response.raise_for_status()
-        return response.json()
+        return response.json()  # type: ignore[no-any-return]
     
     async def get_teams(self, team_id: Optional[int] = None) -> Dict[str, Any]:
         """获取球队信息"""
@@ -299,7 +299,7 @@ class AsyncAPIFootballClient:
         
         response = await self.http.get(f"{self.BASE_URL}/teams", params=params)
         response.raise_for_status()
-        return response.json()
+        return response.json()  # type: ignore[no-any-return]
 
 
 async def concurrent_fetch(urls: List[str], **kwargs) -> List[Dict[str, Any]]:
@@ -324,8 +324,8 @@ async def concurrent_fetch(urls: List[str], **kwargs) -> List[Dict[str, Any]]:
                 results.append({"error": str(resp), "url": urls[i]})
             else:
                 try:
-                    resp.raise_for_status()
-                    results.append(resp.json())
+                    resp.raise_for_status()  # type: ignore[union-attr]
+                    results.append(resp.json())  # type: ignore[union-attr]
                 except Exception as e:
                     logger.error(f"Failed to parse response from {urls[i]}: {e}")
                     results.append({"error": str(e), "url": urls[i]})

@@ -538,6 +538,6 @@ async def execute_tool(name: str, args_dict: dict) -> Dict[str, Any]:
     # 执行
     args: Dict[str, Any] = validated.model_dump()
     if inspect.iscoroutinefunction(tool_def.func):
-        return await tool_def.func(**args)
+        return await tool_def.func(**args)  # type: ignore[no-any-return]
     else:
-        return tool_def.func(**args)
+        return tool_def.func(**args)  # type: ignore[no-any-return]

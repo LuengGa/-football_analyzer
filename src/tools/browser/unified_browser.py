@@ -49,11 +49,11 @@ class AgentBrowserEngine(BrowserEngine):
     
     def is_available(self) -> bool:
         if self._available is not None:
-            return self._available
-        
+            return bool(self._available)
+
         import shutil
         self._available = shutil.which("agent-browser") is not None
-        return self._available  # type: ignore[return-value]
+        return bool(self._available)
     
     async def extract(self, url: str, instruction: str) -> str:
         """使用 agent-browser 提取页面信息"""
@@ -191,8 +191,8 @@ class BrowserUseEngine(BrowserEngine):
             history = await agent.run()
             
             if history and hasattr(history, 'final_result'):
-                return history.final_result()
-            return str(history)  # type: ignore[return-value]
+                return str(history.final_result())  # type: ignore[no-any-return]
+            return str(history)
             
         except Exception as e:
             return f"Error: {str(e)}"
@@ -212,16 +212,16 @@ class PlaywrightEngine(BrowserEngine):
     
     def is_available(self) -> bool:
         if self._available is not None:
-            return self._available
-        
+            return bool(self._available)
+
         try:
             from playwright.sync_api import sync_playwright
             self._available = True
         except ImportError:
             self._available = False
-        
-        return self._available  # type: ignore[return-value]
-    
+
+        return bool(self._available)
+
     async def extract(self, url: str, instruction: str) -> str:
         """使用 Playwright 提取"""
         if not self.is_available():
@@ -246,9 +246,9 @@ class PlaywrightEngine(BrowserEngine):
                         return "\n".join(data) if data else content[:5000]
                     except:
                         pass
-                
+
                 browser.close()
-                return content[:5000]
+                return str(content[:5000])
                 
         except Exception as e:
             return f"Error: {str(e)}"

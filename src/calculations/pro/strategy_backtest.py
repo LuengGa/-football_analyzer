@@ -152,7 +152,8 @@ class StrategyTester:
     def _simple_favorite_strategy(
         self,
         match,
-        poisson_model
+        poisson_model,
+        value_threshold: float = 0.0
     ) -> Optional[Tuple[DomainBetType, float, float, float]]:
         """简单热门投注策略 (基准线)"""
         if not hasattr(match, 'opening_odds') or not match.opening_odds:
@@ -197,8 +198,7 @@ class StrategyTester:
         
         for match in matches:
             # 获取投注信号
-            bet_info = strategy_func(match, poisson_model, value_threshold) if strategy_name != 'simple_favorite' \
-                        else strategy_func(match, poisson_model)
+            bet_info = strategy_func(match, poisson_model, value_threshold)
             
             if bet_info is not None:
                 bet_type, odds, pred_prob, edge = bet_info
@@ -267,11 +267,11 @@ class StrategyTester:
             return False
             
         if bet_type == DomainBetType.HOME:
-            return home_goals > away_goals
+            return bool(home_goals > away_goals)
         elif bet_type == DomainBetType.DRAW:
-            return home_goals == away_goals
+            return bool(home_goals == away_goals)
         elif bet_type == DomainBetType.AWAY:
-            return home_goals < away_goals
+            return bool(home_goals < away_goals)
         else:
             return False
     

@@ -129,16 +129,16 @@ class HistoricalQueryService:
         if not valid_odds:
             return {"count": 0}
 
-        home_odds = [m.home_odds for m in valid_odds]
-        draw_odds = [m.draw_odds for m in valid_odds if m.draw_odds]
-        away_odds = [m.away_odds for m in valid_odds]
+        home_odds: List[float] = [m.home_odds for m in valid_odds if m.home_odds is not None]
+        draw_odds: List[float] = [m.draw_odds for m in valid_odds if m.draw_odds is not None]
+        away_odds: List[float] = [m.away_odds for m in valid_odds if m.away_odds is not None]
 
         return {
             "count": len(valid_odds),
             "home_odds": {
-                "min": min(home_odds),
-                "max": max(home_odds),
-                "avg": sum(home_odds) / len(home_odds),
+                "min": min(home_odds) if home_odds else None,
+                "max": max(home_odds) if home_odds else None,
+                "avg": sum(home_odds) / len(home_odds) if home_odds else None,
             },
             "draw_odds": {
                 "min": min(draw_odds) if draw_odds else None,
@@ -146,9 +146,9 @@ class HistoricalQueryService:
                 "avg": sum(draw_odds) / len(draw_odds) if draw_odds else None,
             },
             "away_odds": {
-                "min": min(away_odds),
-                "max": max(away_odds),
-                "avg": sum(away_odds) / len(away_odds),
+                "min": min(away_odds) if away_odds else None,
+                "max": max(away_odds) if away_odds else None,
+                "avg": sum(away_odds) / len(away_odds) if away_odds else None,
             },
         }
 

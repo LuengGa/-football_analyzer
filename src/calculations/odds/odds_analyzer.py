@@ -33,11 +33,11 @@ class OddsAnalyzer:
     
     def __init__(self, use_historical: bool = True):
         from typing import Dict, Any
-        self.analysis_cache: Dict[Any, Any] = {}
+        self.analysis_cache: Dict[str, Any] = {}
         
         # 初始化历史数据库
         self.historical_db = None
-        if use_historical and HISTORICAL_DB_AVAILABLE and bool(get_historical_database):  # type: ignore[truthy-function]
+        if use_historical and HISTORICAL_DB_AVAILABLE and get_historical_database is not None:
             try:
                 self.historical_db = get_historical_database(lazy_load=True)
                 print(f"✅ OddsAnalyzer 已连接历史数据库 (221,415条数据)")
@@ -116,7 +116,7 @@ class OddsAnalyzer:
 
         if isinstance(memories, list) and memories:
             result["memory_context"] = list(memories)
-        result["recommendation_schema"] = RecommendationSchemaAdapter.from_odds_analyzer_output(  # type: ignore[attr-defined]
+        result["recommendation_schema"] = RecommendationSchemaAdapter.from_odds_analyzer_output(  # type: ignore[attr-defined,union-attr]
             result, memories=memories
         ).to_dict()
         return result

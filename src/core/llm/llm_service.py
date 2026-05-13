@@ -82,7 +82,7 @@ class LLMService:
             temperature=0.3,
             max_tokens=800
         )
-        return response.choices[0].message.content
+        return response.choices[0].message.content  # type: ignore[no-any-return]
 
     @classmethod
     def generate_report(cls, system_prompt: str, data_context: str, role: str = "Analyst") -> str:
@@ -107,7 +107,7 @@ class LLMService:
                 temperature=0.3,
                 max_tokens=800
             )
-            return response.choices[0].message.content
+            return response.choices[0].message.content  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"LLM 调用失败: {e}")
             return f"❌ AI 分析报告生成失败，请检查网络或 API Key。错误信息：{e}"

@@ -5,8 +5,10 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+knowledge_base_dir: Any = None
 try:
-    from src.tools.odds.paths import knowledge_base_dir
+    from src.tools.odds.paths import knowledge_base_dir as _knowledge_base_dir
+    knowledge_base_dir = _knowledge_base_dir
 except ImportError:
     knowledge_base_dir = lambda *args: Path(__file__).resolve().parent.parent.parent / "workspace" / "orchestrator" / "knowledge_base"
 
@@ -22,7 +24,7 @@ class HippocampusMemory:
     def __init__(self, memory_dir=None, event_bus=None, chroma_path: Optional[str] = None):
         self.memory_dir = Path(memory_dir).expanduser() if memory_dir else _DEFAULT_MEMORY_DIR
         self.memory_dir.mkdir(parents=True, exist_ok=True)
-        self.working_memory = [] # 当前处理上下文 (RAM)
+        self.working_memory: List[Dict[str, Any]] = [] # 当前处理上下文 (RAM)
         self.episodic_memory_file = self.memory_dir / "episodic.json" # 情节记忆 (日记)
         self.semantic_memory_file = self.memory_dir / "semantic_truth.json" # 语义记忆 (提炼的规律)
 
@@ -56,7 +58,7 @@ class HippocampusMemory:
             import chromadb
             os.makedirs(self.chroma_path, exist_ok=True)
             self._chroma_client = chromadb.PersistentClient(path=self.chroma_path)
-            self._chroma_collection = self._chroma_client.get_or_create_collection(
+            self._chroma_collection = self._chroma_client.get_or_create_collection(  # type: ignore[union-attr,attr-defined]
                 name="semantic_lessons",
                 metadata={"description": "Extracted lessons from workflow outcomes"}
             )
@@ -167,9 +169,9 @@ class HippocampusMemory:
 
     def _analyze_failure_patterns(self, losses: List[Dict[str, Any]]) -> List[str]:
         """分析亏损模式，提取共性规律"""
-        patterns = []
-        league_losses = {}
-        selection_losses = {}
+        patterns: List[str] = []
+        league_losses: Dict[str, int] = {}
+        selection_losses: Dict[str, int] = {}
 
         for loss in losses:
             ctx = loss.get("context", {}) if isinstance(loss, dict) else {}
@@ -224,7 +226,7 @@ class HippocampusMemory:
                 max_tokens=100,
                 temperature=0.3,
             )
-            return response.choices[0].message.content.strip()
+            return response.choices[0].message.content.strip()  # type: ignore[no-any-return]
         except Exception as e:
             print(f"   [Memory] ⚠️ LLM extraction failed: {e}")
             return patterns[0] if patterns else None

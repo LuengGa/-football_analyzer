@@ -200,7 +200,8 @@ class ExperienceLoop:
             query = f"{home} vs {away} {target_date} 预测"
             memories = mm.query_episodic(query)
             if memories:
-                return memories[0]
+                result: Optional[Dict[str, Any]] = memories[0]
+                return result
         except Exception:
             pass
         return None
@@ -324,7 +325,7 @@ class ExperienceLoop:
 
         try:
             elo_result = elo_svc.update_results(results, date_str=target_date)
-            return elo_result
+            return elo_result  # type: ignore[no-any-return]
         except Exception as e:
             logger.warning(f"[ExpLoop] ELO 批量更新失败: {e}")
             return {"processed": 0, "skipped": 0, "error": str(e)}
@@ -348,13 +349,14 @@ class ExperienceLoop:
         if elo_svc is None:
             return None
         try:
-            return elo_svc.update_single(
+            result_dict: Optional[Dict[str, Any]] = elo_svc.update_single(
                 home=home,
                 away=away,
                 result=result,
                 match_id=match_id,
                 date_str=date_str,
-            )  # type: ignore[no-any-return]
+            )
+            return result_dict
         except Exception as e:
             logger.warning(f"[ExpLoop] 单场 ELO 更新失败: {e}")
             return None

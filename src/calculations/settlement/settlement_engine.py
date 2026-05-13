@@ -1,4 +1,5 @@
 import logging
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +65,7 @@ class SettlementEngine:
         up_down = "UP" if total_goals >= 3 else "DOWN"
         up_down_odd_even = f"{up_down}_{odd_even}"
 
-        results = {
+        results: Dict[str, Any] = {
             "status": "SETTLED",
             "ft_score": ft_score,
             "ht_score": ht_score,
@@ -84,7 +85,7 @@ class SettlementEngine:
                 "JINGCAI_GOALS": goals,
                 "JINGCAI_CS": cs,
                 "JINGCAI_HTFT": htft,
-                "JINGCAI_MIXED_PARLAY": {  # type: ignore[dict-item]
+                "JINGCAI_MIXED_PARLAY": {
                     "WDL": wdl,
                     "JINGCAI_HANDICAP_WDL": jingcai_handicap_wdl,
                     "GOALS": goals,

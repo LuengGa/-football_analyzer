@@ -802,11 +802,11 @@ class LLMStrategyGenerator:
             import re
             json_match = re.search(r'\[.*\]', response, re.DOTALL)
             if json_match:
-                return json.loads(json_match.group())
+                return json.loads(json_match.group())  # type: ignore[no-any-return]
         except Exception as e:
             logger.warning(f"模式发现失败: {e}")
 
-        return []  # type: ignore[return-value]
+        return []
 
     def _identify_opportunities(self, patterns: List[Dict]) -> List[Dict]:
         """识别潜在机会"""
@@ -883,15 +883,16 @@ class LLMStrategyGenerator:
             import re
             json_match = re.search(r'\{.*\}', response, re.DOTALL)
             if json_match:
-                return json.loads(json_match.group())
+                return json.loads(json_match.group())  # type: ignore[no-any-return]
         except Exception as e:
             logger.warning(f"策略生成失败: {e}")
 
-        return {
+        result: Dict[str, Any] = {
             "name": "默认策略",
             "rules": ["等待LLM策略生成"],
             "risk_level": "medium"
         }
+        return result
 
     def _generate_backtest_params(
         self,

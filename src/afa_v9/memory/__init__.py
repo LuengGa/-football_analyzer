@@ -185,7 +185,7 @@ class SemanticMemory:
             相关规则列表
         """
         semantic = self.get_lottery_semantic()
-        return semantic.query(query, top_k)  # type: ignore[return-value]
+        return semantic.query(query, top_k)  # type: ignore[return-value,no-any-return]
 
 
 class BM25Search:

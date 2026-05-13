@@ -113,7 +113,7 @@ class VisualBrowser:
                     await page.goto(url, wait_until="domcontentloaded", timeout=30000)
                     await page.wait_for_timeout(3000)
                 else:
-                    return search_web(search_term)
+                    return str(search_web(search_term) if search_term else "")
 
                 content = await self._extract_content(page, task_instruction)
                 await browser.close()
