@@ -40,7 +40,7 @@ class HeartbeatMonitor:
             self._perform_health_check()
             self._last_check = current_time
 
-        return self.health_status
+        return self.health_status  # type: ignore[no-any-return]
 
     def _perform_health_check(self) -> None:
         self.health_status.warnings.clear()

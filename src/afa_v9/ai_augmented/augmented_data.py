@@ -122,11 +122,11 @@ class LLMDataManager:
 2. 各数据源对比分析
 3. 改进建议"""
                 
-                return self.llm.generate(
+                return str(self.llm.generate(  # type: ignore[return-value]
                     prompt=prompt,
                     temperature=0.3,
                     max_tokens=500
-                )
+                ))
             else:
                 return self._fallback_report(source_stats)
                 

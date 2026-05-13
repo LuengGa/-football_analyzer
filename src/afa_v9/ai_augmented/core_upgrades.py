@@ -184,7 +184,7 @@ class EnhancedExecutionEngine:
             decision["selection"] = "home" if edge_home > edge_away else "away"
             decision["reasoning"] = f"价值边缘 {best_edge:.1%}，六层分析 {six_layer_score:.0%}，符合投注标准"
             decision["risk_factors"] = ["市场波动", "球队状态变化"]
-            decision["recommended_stake"] = decision["confidence"] * 0.1
+            decision["recommended_stake"] = float(decision["confidence"] * 0.1)
         else:
             decision["reasoning"] = f"价值不足 {best_edge:.1%} 或分析评分 {six_layer_score:.0%} 不够"
             decision["risk_factors"] = ["价值不足"]
@@ -828,7 +828,7 @@ class EnhancedPoissonModel:
         return exp(-lambda_) * (lambda_ ** k) / factorial(k)
 
     def _list_adjustments(self, context: Optional[Dict]) -> List[str]:
-        adjustments = []
+        adjustments: List[str] = []
         if not context:
             return adjustments
 
@@ -927,7 +927,7 @@ class EnhancedKellyCriterion:
         if not bet_candidates:
             return []
 
-        candidates = []
+        candidates: list[dict[str, Any]] = []
         for bet in bet_candidates:
             odds = bet.get("odds", 2.0)
             prob = bet.get("win_prob", 0.5)
@@ -942,7 +942,7 @@ class EnhancedKellyCriterion:
 
         candidates.sort(key=lambda x: x["score"], reverse=True)
 
-        selected = []
+        selected: list[dict[str, Any]] = []
         total_exposure = 0.0
 
         for candidate in candidates:

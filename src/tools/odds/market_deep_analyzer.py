@@ -1,4 +1,5 @@
 import json
+from typing import Dict, Any
 from src.tools.odds.memory_manager import MemoryManager
 
 def deep_evaluate_all_markets(lottery_type: str, home_team: str, away_team: str, league: str, home_win_odds: float, draw_odds: float, away_win_odds: float) -> str:
@@ -46,12 +47,12 @@ def deep_evaluate_all_markets(lottery_type: str, home_team: str, away_team: str,
         # 让平（净胜1球）的概率估算：通常强队赢球中有 35%-45% 是净胜一球
         historical_exact_one_goal_win_rate = historical_home_win_rate * 0.40
     
-    report = {
+    report: Dict[str, Any] = {
         "match": f"{home_team} vs {away_team}",
         "league": league,
         "lottery_type": lottery_type.upper(),
         "historical_data_used": len(historical_matches.get("matches", [])) if historical_matches else 0,
-        "deep_analysis": {}
+        "deep_analysis": {}  # type: ignore
     }
     
     def calc_kelly(ev, odds):

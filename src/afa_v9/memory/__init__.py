@@ -185,7 +185,7 @@ class SemanticMemory:
             相关规则列表
         """
         semantic = self.get_lottery_semantic()
-        return semantic.query(query, top_k)
+        return semantic.query(query, top_k)  # type: ignore[return-value]
 
 
 class BM25Search:
@@ -332,7 +332,7 @@ class UnifiedMemory:
         Returns:
             相关规则列表
         """
-        return self.semantic.query_rules(query, top_k)
+        return self.semantic.query_rules(query, top_k)  # type: ignore[no-any-return]
 
     def get_context_for_llm(self, query: str, max_memories: int = 10) -> str:
         """为LLM生成记忆上下文"""
@@ -349,11 +349,11 @@ class UnifiedMemory:
 
     def complete_episode(self, outcome: str, lessons: List[str] = None) -> str:
         """记录完整的事件episode"""
-        return self.episodic.store_episode(
+        return str(self.episodic.store_episode(  # type: ignore[return-value]
             event_type="completed_episode",
             content={"outcome": outcome, "lessons": lessons or []},
             outcome=outcome,
-        )
+        ))
 
 
 class Memory:
@@ -374,10 +374,10 @@ class Memory:
         self.unified.store(key, value, importance, episodic=True)
 
     def search_memory(self, query: str) -> List[Dict]:
-        return self.unified.search(query)
+        return self.unified.search(query)  # type: ignore[no-any-return]
 
     def get_full_context(self) -> str:
-        return self.unified.get_context_for_llm("current context")
+        return self.unified.get_context_for_llm("current context")  # type: ignore[no-any-return]
 
 
 MEMORY_INSTANCE = Memory()

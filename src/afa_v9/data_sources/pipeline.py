@@ -65,7 +65,7 @@ class DataPipeline:
         match_date: Optional[str] = None,
     ) -> Dict[str, Any]:
         """获取比赛情报"""
-        intel = {
+        intel: Dict[str, Any] = {
             "home_team": home_team,
             "away_team": away_team,
             "match_date": match_date or datetime.now().isoformat(),
@@ -172,7 +172,7 @@ class DataPipeline:
 
     def get_weather(self, city: str) -> Dict[str, Any]:
         """获取天气数据"""
-        weather_data = {
+        weather_data: Dict[str, Any] = {
             "city": city,
             "weather": None,
             "forecast": [],
@@ -189,7 +189,7 @@ class DataPipeline:
                     "humidity": current["current"].get("humidity"),
                 }
 
-            forecast = self.weather_api.get_forecast(city=city, days=1)
+            forecast = self.weather_api.get_forecast(location=city, days=1)
             if "forecast" in forecast:
                 weather_data["forecast"] = forecast["forecast"].get("forecastday", [])
         except Exception:
@@ -204,7 +204,7 @@ class DataPipeline:
         venue_city: Optional[str] = None,
     ) -> Dict[str, Any]:
         """获取综合比赛数据"""
-        data = {
+        data: Dict[str, Any] = {
             "home_team": home_team,
             "away_team": away_team,
             "timestamp": datetime.now().isoformat(),
@@ -216,7 +216,7 @@ class DataPipeline:
         data["away_form"] = self.get_team_form(away_team)
 
         if venue_city:
-            data["weather"] = self.get_weather(venue_city)
+            data["weather"] = self.get_weather(venue_city) if isinstance(venue_city, str) else None
 
         data["odds"] = self.get_odds_data()
 

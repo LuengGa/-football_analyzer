@@ -402,9 +402,9 @@ class LLMDynamicSixLayer:
         else:
             adjusted_weights = self.base_weights.copy()
 
-        layers_result = {}
-        total_score = 0
-        total_weight = 0
+        layers_result: Dict[str, Any] = {}
+        total_score: float = 0.0
+        total_weight: float = 0.0
 
         for layer_name in self.DEFAULT_LAYERS:
             weight = adjusted_weights.get(layer_name, 1.0)
@@ -499,7 +499,7 @@ class LLMDynamicSixLayer:
         except Exception as e:
             logger.warning(f"LLM权重调整失败: {e}")
 
-        return self.base_weights.copy()
+        return self.base_weights.copy()  # type: ignore[return-value]
 
     def _analyze_layer(self, layer: str, data: Dict) -> Dict:
         """分析单个层"""
@@ -563,7 +563,7 @@ class LLMEnhancedPoisson:
 
     def _get_base_poisson(self, home: str, away: str) -> Dict:
         """获取基础Poisson预测"""
-        from src.calculations.pro.poisson_model import PoissonGoalModel
+        from src.calculations.pro.poisson_model import EnhancedPoissonGoalModel as PoissonGoalModel
 
         model = PoissonGoalModel()
 
@@ -806,11 +806,11 @@ class LLMStrategyGenerator:
         except Exception as e:
             logger.warning(f"模式发现失败: {e}")
 
-        return []
+        return []  # type: ignore[return-value]
 
     def _identify_opportunities(self, patterns: List[Dict]) -> List[Dict]:
         """识别潜在机会"""
-        opportunities = []
+        opportunities: List[Dict[str, Any]] = []
 
         for p in patterns:
             if p.get("confidence", 0) > 0.6:
@@ -957,6 +957,9 @@ class AIAugmentedExecutionEngine:
             context
         )
 
+        bankroll_context = context.get("bankroll") if context else None
+        bankroll_dict: Dict[str, Any] = bankroll_context if isinstance(bankroll_context, dict) else {}
+
         llm_context = LLMDecisionContext(
             match_info=match_data,
             odds_data=odds_data,
@@ -968,10 +971,10 @@ class AIAugmentedExecutionEngine:
                     odds_data
                 )
             },
-            bankroll_status=context.get("bankroll", {}) if context else {},
-            market_sentiment=context.get("market_sentiment", ""),
-            news_impact=context.get("news_impact", ""),
-            historical_patterns=context.get("patterns", [])
+            bankroll_status=bankroll_dict,
+            market_sentiment=context.get("market_sentiment", "") if context else "",
+            news_impact=context.get("news_impact", "") if context else "",
+            historical_patterns=context.get("patterns", []) if context else []
         )
 
         decision = self.decider.decide(llm_context)

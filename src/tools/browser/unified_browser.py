@@ -53,7 +53,7 @@ class AgentBrowserEngine(BrowserEngine):
         
         import shutil
         self._available = shutil.which("agent-browser") is not None
-        return self._available
+        return self._available  # type: ignore[return-value]
     
     async def extract(self, url: str, instruction: str) -> str:
         """使用 agent-browser 提取页面信息"""
@@ -192,7 +192,7 @@ class BrowserUseEngine(BrowserEngine):
             
             if history and hasattr(history, 'final_result'):
                 return history.final_result()
-            return str(history)
+            return str(history)  # type: ignore[return-value]
             
         except Exception as e:
             return f"Error: {str(e)}"
@@ -220,7 +220,7 @@ class PlaywrightEngine(BrowserEngine):
         except ImportError:
             self._available = False
         
-        return self._available
+        return self._available  # type: ignore[return-value]
     
     async def extract(self, url: str, instruction: str) -> str:
         """使用 Playwright 提取"""

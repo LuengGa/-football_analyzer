@@ -1,8 +1,23 @@
 import json
 import logging
-from typing import Dict, Any, List
+import os
+from typing import Dict, Any, List, TYPE_CHECKING, cast
 
-# 模拟 2026 年 MCP Server 暴露的工具能力
+if TYPE_CHECKING:
+    from src.afa_v9.execution.engine import ExecutionEngine
+    from src.calculations.lottery.lottery_math_engine import LotteryMathEngine
+
+BettingLedger: "type[object]" = cast("type[object]", None)
+_LotteryMathEngine: "type[object] | None" = None
+try:
+    from src.afa_v9.execution.engine import ExecutionEngine as BettingLedger
+except ImportError:
+    try:
+        from src.calculations.lottery.lottery_math_engine import LotteryMathEngine as _ImportedLotteryMathEngine
+        _LotteryMathEngine = _ImportedLotteryMathEngine
+    except ImportError:
+        pass
+
 from src.tools.odds.analyzer_api import AnalyzerAPI
 from src.tools.odds.smart_money_tracker import SmartMoneyTracker
 from src.tools.odds.bayesian_xg import BayesianXGModel
@@ -17,18 +32,6 @@ from src.tools.odds.qrcode_ticket_generator import generate_ticket_qr
 from src.tools.odds.notification_dispatcher import dispatch_notification
 from src.tools.odds.memory_manager import MemoryManager
 from src.tools.odds.historical_db_loader import get_historical_database
-import os
-
-# 尝试导入可选依赖
-BettingLedger = None
-LotteryMathEngine = None
-try:
-    from src.afa_v9.execution.engine import ExecutionEngine as BettingLedger
-except ImportError:
-    try:
-        from src.calculations.lottery.lottery_math_engine import LotteryMathEngine
-    except ImportError:
-        pass
 
 # 初始化工具
 _ledger = None
@@ -103,11 +106,10 @@ def save_team_insight(team_name: str, insight: str, match_id: str = "unknown") -
     return _memory_manager.save_insight(team_name, insight, match_id)
 
 @ensure_protocol(mock=True, source="ledger")
-def execute_bet(match_id: str, lottery_type: str, selection: str, odds: float, stake: float) -> dict:
+def execute_bet(match_id: str, lottery_type: str, selection: str, odds: float, stake: float) -> Dict[str, Any]:
     """执行真实下注并记录到本地 SQLite 账本，生成体彩实单代码。"""
     if _ledger and hasattr(_ledger, 'execute_bet'):
-        return _ledger.execute_bet(match_id, lottery_type, selection, odds, stake)
-    # Mock response if ledger not available
+        return cast(Dict[str, Any], _ledger.execute_bet(match_id, lottery_type, selection, odds, stake))
     return {
         "ticket_id": f"TKT-{match_id}",
         "status": "simulated",
@@ -116,11 +118,10 @@ def execute_bet(match_id: str, lottery_type: str, selection: str, odds: float, s
     }
 
 @ensure_protocol(mock=True, source="ledger")
-def check_bankroll() -> dict:
+def check_bankroll() -> Dict[str, Any]:
     """查看当前真实可用资金(Bankroll)与历史 ROI，进行资金风控。"""
     if _ledger and hasattr(_ledger, 'check_bankroll'):
-        return _ledger.check_bankroll()
-    # Mock response if ledger not available
+        return cast(Dict[str, Any], _ledger.check_bankroll())
     return {
         "bankroll": 10000.0,
         "total_bets": 0,
@@ -252,15 +253,14 @@ def calculate_poisson_probabilities(home_xg: float, away_xg: float) -> Dict[str,
     return {"home_win": p_home, "draw": p_draw, "away_win": p_away}
 
 @ensure_protocol(mock=True, source="math_engine")
-def calculate_all_markets(home_xg: float, away_xg: float, handicap: float = -1.0) -> dict:
+def calculate_all_markets(home_xg: float, away_xg: float, handicap: float = -1.0) -> Dict[str, Any]:
     """计算竞彩/北单所有衍生玩法(胜平负、让球、总进球、半全场、上下单双)的理论概率。"""
-    if LotteryMathEngine:
+    if _LotteryMathEngine is not None:
         try:
-            engine = LotteryMathEngine()
-            return engine.calculate_all_markets(home_xg, away_xg, handicap)
+            engine = _LotteryMathEngine()
+            return cast(Dict[str, Any], engine.calculate_all_markets(home_xg, away_xg, handicap))  # type: ignore[attr-defined]
         except Exception:
             pass
-    # Mock response if engine not available
     return {
         "home_win": 0.45,
         "draw": 0.30,

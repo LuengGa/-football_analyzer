@@ -335,7 +335,7 @@ class ExecutionEngine:
     def _check_daily_limit(self, date_str: str) -> bool:
         if self.bankroll:
             today_count = self.daily_bets.get(date_str, 0)
-            return today_count < self.bankroll.config.max_daily_bets
+            return bool(today_count < self.bankroll.config.max_daily_bets)
         return True
 
     def _increment_daily(self, date_str: str) -> None:

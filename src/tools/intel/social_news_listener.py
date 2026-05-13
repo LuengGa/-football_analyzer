@@ -1,7 +1,7 @@
 import time
 import os
 import threading
-from typing import Dict, Any
+from typing import Dict, Any, List, Callable
 import requests
 import xml.etree.ElementTree as ET
 import re
@@ -22,7 +22,7 @@ class SocialNewsListener:
             "https://www.skysports.com/rss/12040"
         ]
         
-        self._cache = {}
+        self._cache: Dict[str, Dict[str, Any]] = {}
         self._cache_lock = threading.Lock()
         
         self.use_local_slm = os.getenv("USE_LOCAL_SLM", "true").lower() in ("true", "1", "yes")
@@ -46,7 +46,7 @@ class SocialNewsListener:
             self._polling_thread.start()
             print("   -> 🚀 [ZSA 快轨] SocialNewsListener 常驻内存守护线程已启动...")
             
-        self._callbacks = []
+        self._callbacks: List[Callable] = []
         self._load_zsa_thresholds()
 
     def _load_zsa_thresholds(self):
@@ -78,14 +78,16 @@ class SocialNewsListener:
     def _background_poll(self):
         while True:
             try:
-                all_news = []
+                all_news: List[tuple[str, str]] = []
                 for url in self.rss_feeds:
                     resp = requests.get(url, timeout=5)
                     if resp.status_code == 200:
                         root = ET.fromstring(resp.content)
                         for item in root.findall('./channel/item'):
-                            title = item.find('title').text or ""
-                            desc = item.find('description').text or ""
+                            title_elem = item.find('title')
+                            desc_elem = item.find('description')
+                            title = title_elem.text if title_elem is not None else ""
+                            desc = desc_elem.text if desc_elem is not None else ""
                             all_news.append((title, desc))
                 
                 with self._cache_lock:
@@ -146,15 +148,17 @@ class SocialNewsListener:
 
     def _force_sync_fetch(self, team_name: str):
         print(f"   -> 📡 [ZSA 快轨] 首次扫描 {team_name} 的情报入缓存...")
-        news_items = []
+        news_items: List[str] = []
         try:
             for url in self.rss_feeds:
                 resp = requests.get(url, timeout=5)
                 if resp.status_code == 200:
                     root = ET.fromstring(resp.content)
                     for item in root.findall('./channel/item'):
-                        title = item.find('title').text or ""
-                        desc = item.find('description').text or ""
+                        title_elem = item.find('title')
+                        desc_elem = item.find('description')
+                        title = str(title_elem.text) if title_elem is not None and title_elem.text else ""
+                        desc = str(desc_elem.text) if desc_elem is not None and desc_elem.text else ""
                         if team_name.lower() in title.lower() or team_name.lower() in desc.lower():
                             news_items.append(f"{title}: {desc}")
         except Exception:

@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-import requests
+import requests  # type: ignore
 
 
 _UA = (

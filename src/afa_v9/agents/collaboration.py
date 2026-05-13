@@ -224,7 +224,7 @@ class AgentCollaborationManager:
             print(f"   {agent} 投票: {vote}")
         
         # 计算共识
-        option_counts = {}
+        option_counts: Dict[str, int] = {}
         for vote in vote_results.values():
             option_counts[vote] = option_counts.get(vote, 0) + 1
         

@@ -78,8 +78,9 @@ class Task:
 
 
 class TaskQueue:
-    _instance = None
+    _instance: Optional["TaskQueue"] = None
     _lock = threading.Lock()
+    _initialized: bool = False
 
     def __new__(cls, db_path: Optional[str] = None):
         if cls._instance is None:
@@ -184,7 +185,7 @@ class TaskQueue:
         try:
             priority, task_id = self._queue.get_nowait()
         except queue.Empty:
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute("""
                 SELECT * FROM tasks
                 WHERE status = 'pending'
@@ -211,7 +212,7 @@ class TaskQueue:
         return task
 
     def complete(self, task_id: str, result: Any) -> None:
-        cursor = self._conn.cursor()
+        cursor = self._conn.cursor()  # type: ignore[union-attr]
         cursor.execute("""
             UPDATE tasks SET status = ?, completed_at = ?, result = ?
             WHERE id = ?
@@ -220,7 +221,7 @@ class TaskQueue:
         logger.info(f"Task {task_id} completed")
 
     def fail(self, task_id: str, error: str) -> None:
-        cursor = self._conn.cursor()
+        cursor = self._conn.cursor()  # type: ignore[union-attr]
         cursor.execute("SELECT retry_count, max_retries FROM tasks WHERE id = ?", (task_id,))
         row = cursor.fetchone()
         if row and row[0] < row[1]:
@@ -239,13 +240,13 @@ class TaskQueue:
             logger.error(f"Task {task_id} failed: {error}")
 
     def cancel(self, task_id: str) -> bool:
-        cursor = self._conn.cursor()
+        cursor = self._conn.cursor()  # type: ignore[union-attr]
         cursor.execute("UPDATE tasks SET status = ? WHERE id = ? AND status = 'pending'", (TaskStatus.CANCELLED.value, task_id))
         self._conn.commit()
         return cursor.rowcount > 0
 
     def get_task(self, task_id: str) -> Optional[Task]:
-        cursor = self._conn.cursor()
+        cursor = self._conn.cursor()  # type: ignore[union-attr]
         cursor.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
         row = cursor.fetchone()
         return Task.from_row(row) if row else None
@@ -290,7 +291,7 @@ class TaskQueue:
                 self.fail(task.id, str(e))
 
     def get_stats(self) -> Dict[str, Any]:
-        cursor = self._conn.cursor()
+        cursor = self._conn.cursor()  # type: ignore[union-attr]
         cursor.execute("SELECT status, COUNT(*) FROM tasks GROUP BY status")
         by_status = dict(cursor.fetchall())
         cursor.execute("SELECT COUNT(*) FROM tasks")

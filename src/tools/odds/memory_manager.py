@@ -1,7 +1,7 @@
 import os
 import chromadb
 from chromadb.utils import embedding_functions
-from typing import List, Dict, Any
+from typing import List, Dict, Any, cast
 
 from src.tools.odds.paths import data_dir
 
@@ -56,7 +56,7 @@ class _EmbeddingFunctionAdapter:
 
     @staticmethod
     def build_from_config(config: Dict[str, Any]) -> "_EmbeddingFunctionAdapter":
-        return NotImplemented
+        return cast("_EmbeddingFunctionAdapter", NotImplemented)
 
     def is_legacy(self) -> bool:
         if hasattr(self._embedding_function, "is_legacy"):

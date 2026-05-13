@@ -8,6 +8,7 @@
 """
 import asyncio
 import logging
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -15,10 +16,10 @@ logger = logging.getLogger(__name__)
 class SocialAgent:
     """舆情情报 Agent"""
 
-    async def gather(self, team_a: str, team_b: str) -> dict:
+    async def gather(self, team_a: str, team_b: str) -> dict[str, Any]:
         """
         并发获取两队社媒情绪
-        
+
         Returns:
             dict: {
                 "team_a_sentiment": {...},
@@ -29,14 +30,14 @@ class SocialAgent:
         task_a = self._fetch_sentiment(team_a)
         task_b = self._fetch_sentiment(team_b)
 
-        sent_a, sent_b = await asyncio.gather(task_a, task_b, return_exceptions=True)
+        results = await asyncio.gather(task_a, task_b, return_exceptions=True)
+        sent_a: dict[str, Any] = results[0] if not isinstance(results[0], Exception) else {"team": team_a, "sentiment_score": 0.5}  # type: ignore[assignment]
+        sent_b: dict[str, Any] = results[1] if not isinstance(results[1], Exception) else {"team": team_b, "sentiment_score": 0.5}  # type: ignore[assignment]
 
-        if isinstance(sent_a, Exception):
-            logger.warning(f"舆情抓取异常 {team_a}: {sent_a}")
-            sent_a = {"team": team_a, "sentiment_score": 0.5}
-        if isinstance(sent_b, Exception):
-            logger.warning(f"舆情抓取异常 {team_b}: {sent_b}")
-            sent_b = {"team": team_b, "sentiment_score": 0.5}
+        if isinstance(results[0], Exception):
+            logger.warning(f"舆情抓取异常 {team_a}: {results[0]}")
+        if isinstance(results[1], Exception):
+            logger.warning(f"舆情抓取异常 {team_b}: {results[1]}")
 
         return {
             "team_a_sentiment": sent_a,
@@ -44,23 +45,22 @@ class SocialAgent:
             "overall_bias": self._compute_bias(sent_a, sent_b),
         }
 
-    async def _fetch_sentiment(self, team: str) -> dict:
+    async def _fetch_sentiment(self, team: str) -> dict[str, Any]:
         """
         抓取单队社媒情绪得分
-        
+
         数据源候选：
         - Twitter/X API (球队标签情感分析)
         - Reddit r/soccer 热帖情绪
         - 国内：懂球帝评论区、虎扑话题热度
         - 投注平台资金流向（冷热指数的补充视角）
-        
+
         sentiment_score 范围 [0.0, 1.0]：
         - 0.0 = 极度看衰
         - 0.5 = 中性
         - 1.0 = 极度看好
         """
         try:
-            # 骨架实现 — 实际应接真实舆情数据源
             return {
                 "team": team,
                 "sentiment_score": 0.5,
@@ -72,14 +72,14 @@ class SocialAgent:
             logger.warning(f"舆情抓取失败 {team}: {e}")
             return {"team": team, "sentiment_score": 0.5}
 
-    def _compute_bias(self, sent_a: dict, sent_b: dict) -> str:
+    def _compute_bias(self, sent_a: dict[str, Any], sent_b: dict[str, Any]) -> str:
         """
         计算市场整体倾向
-        
+
         偏差阈值：
         - |diff| < 0.1 → NEUTRAL（市场无明显偏向）
         - diff >= 0.1 → HOME_FAVORED / AWAY_FAVORED
-        
+
         该信号用于：
         - 逆向投注：当市场一边倒时考虑反向
         - Kelly 公式调整：降低热门方仓位

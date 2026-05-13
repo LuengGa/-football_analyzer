@@ -203,7 +203,7 @@ class DataSourceManager:
         total = perf["success_count"] + perf["failure_count"]
         if total == 0:
             return 0.7
-        return perf["success_count"] / total
+        return float(perf["success_count"] / total)
 
     def _generate_quality_recommendations(
         self,
@@ -252,7 +252,7 @@ class DataSourceManager:
                 scores[source] = 0.5
 
         best_source = max(scores.items(), key=lambda x: x[1])[0]
-        fallback_sources = [s for s in sorted(scores, key=scores.get, reverse=True) if s != best_source][:2]
+        fallback_sources = [s for s in sorted(scores.keys(), key=lambda k: scores[k], reverse=True) if s != best_source][:2]
 
         reasoning = self._generate_selection_reasoning(best_source, scores, priority)
 

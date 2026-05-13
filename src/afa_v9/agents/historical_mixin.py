@@ -18,7 +18,7 @@
 """
 
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
@@ -32,8 +32,11 @@ class HistoricalAgentMixin:
     """
 
     _shared_initialized: bool = False
-    _shared_query_service = None
-    _shared_analyzer = None
+    _shared_query_service: Optional[Any] = None
+    _shared_analyzer: Optional[Any] = None
+    _historical_initialized: bool = False
+    _query_service: Optional[Any] = None
+    _analyzer: Optional[Any] = None
 
     def _init_historical(self) -> None:
         """初始化历史数据服务"""
@@ -46,15 +49,17 @@ class HistoricalAgentMixin:
             from src.core.historical_data.query_service import HistoricalQueryService
             from src.core.historical_data.analytics import HistoricalDataAnalyzer
 
-            HistoricalAgentMixin._shared_query_service = HistoricalQueryService()
-            HistoricalAgentMixin._shared_analyzer = HistoricalDataAnalyzer()
+            query_service = HistoricalQueryService()
+            analyzer = HistoricalDataAnalyzer()
+            HistoricalAgentMixin._shared_query_service = query_service
+            HistoricalAgentMixin._shared_analyzer = analyzer
             HistoricalAgentMixin._shared_initialized = True
 
-            self._query_service = HistoricalAgentMixin._shared_query_service
-            self._analyzer = HistoricalAgentMixin._shared_analyzer
+            self._query_service = query_service
+            self._analyzer = analyzer
             self._historical_initialized = True
 
-            logger.info(f"{self.soul.name} 历史数据服务已初始化")
+            logger.info(f"历史数据服务已初始化")
         except Exception as e:
             logger.warning(f"历史数据服务初始化失败: {e}")
             self._query_service = None
@@ -153,7 +158,7 @@ class HistoricalAgentMixin:
         if not self._query_service:
             return {"error": "历史数据服务不可用"}
 
-        return self._query_service.get_odds_statistics(league_code)
+        return self._query_service.get_odds_statistics(league_code)  # type: ignore[no-any-return]
 
     def get_team_stats(self, team_name: str) -> Dict[str, Any]:
         """获取球队详细统计"""
@@ -162,7 +167,7 @@ class HistoricalAgentMixin:
         if not self._query_service:
             return {"error": "历史数据服务不可用"}
 
-        return self._query_service.get_team_statistics(team_name)
+        return self._query_service.get_team_statistics(team_name)  # type: ignore[no-any-return]
 
     def search_similar_matches(
         self,
@@ -187,7 +192,7 @@ class HistoricalAgentMixin:
             return []
 
         try:
-            return self._query_service.search_similar(
+            return self._query_service.search_similar(  # type: ignore[no-any-return]
                 query=query,
                 top_k=top_k,
                 league=league
@@ -248,7 +253,7 @@ class HistoricalAgentMixin:
         if not self._query_service:
             return {"error": "历史数据服务不可用"}
 
-        return self._query_service.get_data_overview()
+        return self._query_service.get_data_overview()  # type: ignore[no-any-return]
 
     def get_asian_handicap_value(self) -> Dict[str, Any]:
         """分析亚洲盘价值"""

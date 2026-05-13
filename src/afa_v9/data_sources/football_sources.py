@@ -1,62 +1,9 @@
 """
-AFA v9.0 数据源基类
-
-统一的数据获取接口
+AFA v9.0 足球数据源连接器
 """
 
-from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
-from datetime import datetime
-import time
-import requests
-
-
-class BaseDataSource(ABC):
-    def __init__(self, name: str):
-        self.name = name
-        self.last_request_time = 0
-        self.request_count = 0
-        self.rate_limit_delay = 1.0
-
-    def _rate_limit(self) -> None:
-        elapsed = time.time() - self.last_request_time
-        if elapsed < self.rate_limit_delay:
-            time.sleep(self.rate_limit_delay - elapsed)
-        self.last_request_time = time.time()
-
-    def _make_request(
-        self,
-        method: str,
-        url: str,
-        headers: Optional[Dict] = None,
-        params: Optional[Dict] = None,
-        data: Optional[Dict] = None,
-        timeout: int = 30,
-    ) -> Dict[str, Any]:
-        self._rate_limit()
-        self.request_count += 1
-
-        try:
-            response = requests.request(
-                method=method,
-                url=url,
-                headers=headers,
-                params=params,
-                json=data,
-                timeout=timeout,
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            return {"error": str(e), "status": "failed"}
-
-    def get_status(self) -> Dict[str, Any]:
-        return {
-            "name": self.name,
-            "request_count": self.request_count,
-            "last_request": datetime.fromtimestamp(self.last_request_time).isoformat()
-                if self.last_request_time > 0 else None,
-        }
+from .base import BaseDataSource
 
 
 class FootballDataSource(BaseDataSource):
@@ -81,7 +28,7 @@ class FootballDataSource(BaseDataSource):
         date_to: Optional[str] = None,
     ) -> Dict[str, Any]:
         url = f"{self.base_url}/matches"
-        params = {}
+        params: Dict[str, Any] = {}
         if competition_id:
             params["competitions"] = competition_id
         if date_from:
@@ -109,7 +56,7 @@ class APIFootballDataSource(BaseDataSource):
 
     def get_leagues(self, country: Optional[str] = None) -> Dict[str, Any]:
         url = f"{self.base_url}/leagues"
-        params = {"current": "true"}
+        params: Dict[str, Any] = {"current": "true"}
         if country:
             params["country"] = country
         return self._make_request("GET", url, headers=self.headers, params=params)
@@ -121,7 +68,7 @@ class APIFootballDataSource(BaseDataSource):
         live: bool = False,
     ) -> Dict[str, Any]:
         url = f"{self.base_url}/fixtures"
-        params = {}
+        params: Dict[str, Any] = {}
         if league_id:
             params["league"] = league_id
         if date:

@@ -31,8 +31,8 @@ class FieldValidator:
 
     @staticmethod
     def validate_odds(odds: Any, field_name: str = "odds") -> ValidationResult:
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         if odds is None:
             errors.append(f"{field_name} is None")
@@ -67,8 +67,8 @@ class FieldValidator:
 
     @staticmethod
     def validate_team_name(name: Any, field_name: str = "team") -> ValidationResult:
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         if not name:
             errors.append(f"{field_name} name is empty")
@@ -89,8 +89,8 @@ class FieldValidator:
 
     @staticmethod
     def validate_league(league: Any) -> ValidationResult:
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         if not league:
             warnings.append("League is empty")
@@ -111,8 +111,8 @@ class FieldValidator:
 
     @staticmethod
     def validate_match_id(match_id: Any) -> ValidationResult:
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         if not match_id:
             errors.append("Match ID is empty")
@@ -128,8 +128,8 @@ class FieldValidator:
 
     @staticmethod
     def validate_score(score: Any) -> ValidationResult:
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         if score is None:
             warnings.append("Score is None (match may not have started)")
@@ -241,12 +241,12 @@ class OddsValidator:
 
     @staticmethod
     def validate_odds_format(odds_data: Dict[str, Any]) -> ValidationResult:
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
         cleaned = {}
 
         required_fields = ["home_win", "draw", "away_win"]
-        found_fields = []
+        found_fields: List[str] = []
 
         if "odds" in odds_data:
             odds = odds_data["odds"]
@@ -273,8 +273,8 @@ class OddsValidator:
 
     @staticmethod
     def check_odds_consistency(odds: Dict[str, float]) -> ValidationResult:
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         if not odds:
             return ValidationResult(False, ["No odds data"], warnings)

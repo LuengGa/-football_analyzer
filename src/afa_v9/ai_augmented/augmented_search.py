@@ -168,7 +168,7 @@ class LLMMemorySearch:
         if not self.semantic_index:
             return []
 
-        results = []
+        results: List[Dict[str, Any]] = []
 
         query_lower = query.lower()
         query_terms = set(query_lower.split())
@@ -312,7 +312,7 @@ class LLMMemorySearch:
 
         context_terms = set(current_context.lower().split())
 
-        recommendations = []
+        recommendations: List[Dict[str, Any]] = []
         for key, mem in self.semantic_index.items():
             mem_terms = set(mem.content.lower().split()) | set(t.lower() for t in mem.tags)
             relevance = len(context_terms & mem_terms) / max(len(context_terms), 1)

@@ -105,14 +105,15 @@ class HistoricalDataAnalyzer:
 
     def load_raw_matches(self) -> List[Any]:
         """直接从JSON加载原始数据"""
-        if self._cache.get('raw_matches'):
-            return self._cache['raw_matches']
+        cached = self._cache.get('raw_matches')
+        if isinstance(cached, list):
+            return cached
 
         import json
         try:
             with open(self._data_path, 'r') as f:
-                data = json.load(f)
-            matches = data.get('matches', [])
+                data: Dict[str, Any] = json.load(f)
+            matches: List[Any] = data.get('matches', [])
             self._cache['raw_matches'] = matches
             return matches
         except Exception:
@@ -411,25 +412,27 @@ class HistoricalDataAnalyzer:
 
     def _get_league(self, match) -> str:
         if hasattr(match, 'league'):
-            return match.league
+            return cast(str, match.league)
         elif hasattr(match, 'get'):
-            return match.get('league', '')
+            return cast(str, match.get('league', ''))
         else:
             return ''
 
-    def _get_home_team(self, match) -> str:
+    def _get_home_team(self, match: Any) -> str:
         if hasattr(match, 'home_team'):
-            return match.home_team
+            val: Any = match.home_team
+            return val if isinstance(val, str) else ''
         elif hasattr(match, 'get'):
-            return match.get('home_team', '')
+            return match.get('home_team', '') or ''
         else:
             return ''
 
-    def _get_away_team(self, match) -> str:
+    def _get_away_team(self, match: Any) -> str:
         if hasattr(match, 'away_team'):
-            return match.away_team
+            val: Any = match.away_team
+            return val if isinstance(val, str) else ''
         elif hasattr(match, 'get'):
-            return match.get('away_team', '')
+            return match.get('away_team', '') or ''
         else:
             return ''
 
@@ -628,11 +631,12 @@ class FeatureVectorizer:
 
     def cosine_similarity(self, v1: List[float], v2: List[float]) -> float:
         """余弦相似度"""
-        dot = sum(a * b for a, b in zip(v1, v2))
-        norm1 = sum(a * a for a in v1) ** 0.5
-        norm2 = sum(b * b for b in v2) ** 0.5
+        dot = sum((a * b for a, b in zip(v1, v2)), 0.0)
+        norm1 = sum((a * a for a in v1), 0.0) ** 0.5
+        norm2 = sum((b * b for b in v2), 0.0) ** 0.5
 
         if norm1 == 0 or norm2 == 0:
             return 0.0
 
-        return dot / (norm1 * norm2)
+        result: float = dot / (norm1 * norm2)
+        return result

@@ -38,8 +38,9 @@ class MemoryRecord:
 
 
 class FTS5MemorySearch:
-    _instance = None
+    _instance: Optional["FTS5MemorySearch"] = None
     _lock = threading.Lock()
+    _initialized: bool = False
 
     def __new__(cls, db_path: Optional[str] = None):
         if cls._instance is None:
@@ -123,7 +124,7 @@ class FTS5MemorySearch:
             metadata_str = json.dumps(metadata or {}, ensure_ascii=False)
             now = datetime.now().isoformat()
 
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute("SELECT created_at FROM memory_records WHERE key = ?", (key,))
             row = cursor.fetchone()
             created_at = row[0] if row else now
@@ -212,7 +213,7 @@ class FTS5MemorySearch:
 
     def get_recent(self, category: Optional[str] = None, limit: int = 20) -> List[MemoryRecord]:
         try:
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
             if category:
                 cursor.execute("""
                     SELECT id, key, raw_content, category, tags, importance, created_at, metadata
@@ -244,7 +245,7 @@ class FTS5MemorySearch:
 
     def delete(self, key: str) -> bool:
         try:
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute("DELETE FROM memory_fts WHERE key = ?", (key,))
             cursor.execute("DELETE FROM memory_records WHERE key = ?", (key,))
             self._conn.commit()
@@ -255,7 +256,7 @@ class FTS5MemorySearch:
 
     def get_stats(self) -> Dict[str, Any]:
         try:
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute("SELECT COUNT(*) FROM memory_records")
             total = cursor.fetchone()[0]
             cursor.execute("SELECT category, COUNT(*) FROM memory_records GROUP BY category")

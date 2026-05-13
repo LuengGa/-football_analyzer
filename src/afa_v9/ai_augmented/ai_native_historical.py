@@ -219,7 +219,7 @@ class AIPatternDiscoverer:
     
     def __init__(self, database: AIHistoricalDatabase):
         self.db = database
-        self._pattern_cache = {}
+        self._pattern_cache: Dict[str, Any] = {}
     
     def discover_league_patterns(self, league_code: str) -> Dict[str, Any]:
         """发现联赛模式"""

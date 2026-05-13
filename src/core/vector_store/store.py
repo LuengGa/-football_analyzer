@@ -37,7 +37,7 @@ class VectorStore:
     def add(self, id: str, vector: List[float], metadata: Dict[str, Any]) -> None:
         raise NotImplementedError
 
-    def search(self, query_vector: List[float], top_k: int = 5) -> List[Dict]:
+    def search(self, query_vector: List[float], top_k: int = 5) -> List[Dict[str, Any]]:
         raise NotImplementedError
 
     def delete(self, id: str) -> None:
@@ -101,7 +101,7 @@ class SimpleVectorStore(VectorStore):
         self.metadata[id] = metadata
         self._save_to_disk()
 
-    def search(self, query_vector: List[float], top_k: int = 5) -> List[Dict]:
+    def search(self, query_vector: List[float], top_k: int = 5) -> List[Dict[str, Any]]:
         if not self.vectors:
             return []
 
@@ -110,7 +110,7 @@ class SimpleVectorStore(VectorStore):
         if query_norm == 0:
             query_norm = 1.0
 
-        similarities = []
+        similarities: List[Dict[str, Any]] = []
         for doc_id, vector in self.vectors.items():
             vec = np.array(vector)
             norm = np.linalg.norm(vec)
@@ -145,8 +145,8 @@ class ChromaVectorStore(VectorStore):
 
     def __init__(self, collection_name: str = "afa_knowledge"):
         super().__init__(collection_name)
-        self._client = None
-        self._collection = None
+        self._client: Any = None
+        self._collection: Any = None
         self._init_chroma()
 
     def _init_chroma(self) -> None:
@@ -171,19 +171,22 @@ class ChromaVectorStore(VectorStore):
             raise ImportError(str(e))
 
     def add(self, id: str, vector: List[float], metadata: Dict[str, Any]) -> None:
-        self._collection.upsert(
-            ids=[id],
-            embeddings=[vector],
-            metadatas=[metadata],
-        )
+        if self._collection is not None:
+            self._collection.upsert(
+                ids=[id],
+                embeddings=[vector],
+                metadatas=[metadata],
+            )
 
-    def search(self, query_vector: List[float], top_k: int = 5) -> List[Dict]:
+    def search(self, query_vector: List[float], top_k: int = 5) -> List[Dict[str, Any]]:
+        if self._collection is None:
+            return []
         results = self._collection.query(
             query_embeddings=[query_vector],
             n_results=top_k,
         )
 
-        items = []
+        items: List[Dict[str, Any]] = []
         if results and "ids" in results:
             for i, doc_id in enumerate(results["ids"][0]):
                 items.append({
@@ -194,10 +197,13 @@ class ChromaVectorStore(VectorStore):
         return items
 
     def delete(self, id: str) -> None:
-        self._collection.delete(ids=[id])
+        if self._collection is not None:
+            self._collection.delete(ids=[id])
 
     def count(self) -> int:
-        return self._collection.count()
+        if self._collection is None:
+            return 0
+        return int(self._collection.count())
 
 
 class VectorStoreFactory:

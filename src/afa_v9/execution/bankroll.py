@@ -67,6 +67,16 @@ class BankrollSnapshot(BaseModel):
 class BankrollManager:
     """完全AI原生的智能资金管理器 (L5级)"""
 
+    balance: float
+    total_deposited: float
+    total_withdrawn: float
+    total_staked: float
+    total_won: float
+    total_lost: float
+    bet_count: int
+    win_count: int
+    loss_count: int
+
     def __init__(
         self,
         config: Optional[BankrollConfig] = None,

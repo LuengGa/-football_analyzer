@@ -317,8 +317,10 @@ class LLMBankrollManager:
                 factors.append("市场波动大")
             if context.get("team_form") == "hot":
                 factors.append("球队状态火热")
-            if abs(context.get("streak", 0)) > 3:
-                factors.append(f"连{abs(context.get('streak'))}场")
+            streak = context.get("streak", 0)
+            streak_val = streak if streak is not None else 0
+            if abs(streak_val) > 3:
+                factors.append(f"连{abs(streak_val)}场")
 
             if factors:
                 return f"调整原因: {', '.join(factors)}，{base_kelly:.2%}→{adjusted_kelly:.2%}"

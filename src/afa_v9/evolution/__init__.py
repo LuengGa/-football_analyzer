@@ -230,6 +230,7 @@ class EvolutionEngine:
             }
             path = self._get_storage_file(filename_map.get(attr, attr))
 
+            data: Any = None
             if attr == "experiences":
                 data = [e.to_dict() for e in self.experiences[-1000:]]
             elif attr == "skills":

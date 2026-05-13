@@ -112,7 +112,7 @@ class DixonColesModel:
         n_teams = len(self.team_strengths)
         team_indices = {name: i for i, name in enumerate(self.team_strengths.keys())}
         
-        total_log_likelihood = 0
+        total_log_likelihood: float = 0.0
         
         for match in matches_data:
             home_team = match['home_team']
@@ -195,25 +195,26 @@ class DixonColesModel:
         # 初始参数
         n_teams = len(team_goals_scored)
         self.team_strengths = {}
-        for team in team_goals_scored:
-            # 简单初始估计
-            scored = sum(team_goals_scored[team])
-            conceded = sum(team_goals_conceded[team])
-            n_games = len(team_goals_scored[team])
+        for team_name in team_goals_scored:
+            scored = sum(team_goals_scored[team_name])
+            conceded = sum(team_goals_conceded[team_name])
+            n_games = len(team_goals_scored[team_name])
             if n_games > 0:
                 attack = (scored / n_games) / self.mean_goals_home if n_games > 0 else 1.0
                 defense = (conceded / n_games) / self.mean_goals_away if n_games > 0 else 1.0
-                self.team_strengths[team] = TeamStrengthDC(
+                self.team_strengths[team_name] = TeamStrengthDC(
                     attack=attack,
                     defense=defense,
-                    name=team
+                    name=team_name
                 )
         
         # 准备优化参数
-        initial_params = [0.0, 0.1]  # rho, home_adv
-        for team in self.team_strengths.values():
-            initial_params.append(team.attack)
-            initial_params.append(team.defense)
+        initial_params: list[float] = [0.0, 0.1]  # rho, home_adv
+        team_names = list(self.team_strengths.keys())
+        for i in range(len(team_names)):
+            team_obj: TeamStrengthDC = self.team_strengths[team_names[i]]
+            initial_params.append(team_obj.attack)
+            initial_params.append(team_obj.defense)
         
         print(f"  优化参数数量: {len(initial_params)}")
         
@@ -235,9 +236,10 @@ class DixonColesModel:
         self.home_advantage = result.x[1]
         
         idx = 2
-        for team in self.team_strengths.values():
-            team.attack = result.x[idx]
-            team.defense = result.x[idx + 1]
+        for j in range(len(team_names)):
+            team_data: TeamStrengthDC = self.team_strengths[team_names[j]]
+            team_data.attack = result.x[idx]
+            team_data.defense = result.x[idx + 1]
             idx += 2
         
         self.is_trained = True

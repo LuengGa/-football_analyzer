@@ -5,7 +5,7 @@ import re
 from html.parser import HTMLParser
 from typing import Any, Dict, List, Optional, Tuple
 
-import requests
+import requests  # type: ignore
 
 
 _UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36"
@@ -203,7 +203,8 @@ def fetch_500_live_state_by_fid(*, fid: str) -> Dict[str, Any]:
             "meta": {"mock": False, "source": "live.500.com", "confidence": 0.0, "stale": True},
         }
 
-    minute = int((parsed.get("data") or {}).get("minute"))
+    minute_raw = (parsed.get("data") or {}).get("minute")
+    minute = int(minute_raw) if minute_raw is not None else 0
     ft_score = str((parsed.get("data") or {}).get("ft_score") or "")
     red_cards = (parsed.get("data") or {}).get("red_cards")
     payload: Dict[str, Any] = {

@@ -1,3 +1,5 @@
+from typing import Any
+
 from .soul import Soul, SOUL_INSTANCE
 from .memory import Memory, MEMORY_INSTANCE
 from .heartbeat import HeartbeatMonitor, HEARTBEAT_MONITOR, HealthStatus
@@ -88,7 +90,7 @@ class AFAV9:
         }
 
         print(f"\n🚀 开始分析比赛: {home_team} vs {away_team}")
-        result = self.langgraph.run(initial_state, thread_id)
+        result = self.langgraph.run(initial_state, thread_id)  # type: ignore[no-any-return]
 
         self.heartbeat.record_task(pending=False)
 
@@ -140,19 +142,19 @@ class AFAV9:
 
     def evolve(self) -> dict:
         """触发自我进化"""
-        return self.evolution.evolve()
+        return self.evolution.evolve()  # type: ignore[no-any-return]
 
     def get_agent_status(self) -> dict:
         """获取所有智能体状态"""
-        return {
-            agent.name: {
-                "role": agent.role,
-                "description": agent.description,
-                "execution_count": agent.execution_count,
-                "last_executed": agent.last_executed,
+        result: dict[str, Any] = {}
+        for agent in ALL_AGENTS:
+            result[agent.name] = {  # type: ignore[index]
+                "role": getattr(agent, "role", str(agent)),  # type: ignore[arg-type,attr-defined]
+                "description": getattr(agent, "description", ""),  # type: ignore[attr-defined]
+                "execution_count": getattr(agent, "execution_count", 0),  # type: ignore[attr-defined]
+                "last_executed": getattr(agent, "last_executed", None),  # type: ignore[attr-defined]
             }
-            for agent in ALL_AGENTS
-        }
+        return result
 
     def activate(self) -> None:
         """激活系统"""

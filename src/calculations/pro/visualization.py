@@ -71,9 +71,9 @@ class SimpleVisualizer:
         max_val = max(history) if history else initial_capital * 2
         height = 20
 
-        chart_lines = []
+        chart_lines: List[str] = []
         for row in range(height, -1, -1):
-            line = []
+            line: List[str] = []
             val = min_val + (max_val - min_val) * (row / height)
             for point in history[::max(1, len(history) // 60)]:
                 if point >= val:
@@ -82,8 +82,8 @@ class SimpleVisualizer:
                     line.append(' ')
             chart_lines.append(''.join(line))
 
-        for line in chart_lines:
-            print('  ' + line)
+        for chart_line in chart_lines:
+            print(f"  {chart_line}")
 
         print(f"\n  初始资金: ¥{initial_capital:,.2f}")
         print(f"  最终资金: ¥{history[-1]:,.2f}")

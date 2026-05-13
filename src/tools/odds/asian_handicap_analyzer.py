@@ -8,9 +8,8 @@ class AsianHandicapAnalyzer:
         ]
 
     def _get_theoretical_handicap(self, euro_odds: float) -> float:
-        # Find closest match
         closest = min(self.conversion_table, key=lambda x: abs(x[0] - euro_odds))
-        return closest[1]
+        return float(closest[1])
 
     def analyze_divergence(self, euro_home_odds: float, actual_asian_handicap: float, home_water: float) -> dict:
         theoretical = self._get_theoretical_handicap(euro_home_odds)

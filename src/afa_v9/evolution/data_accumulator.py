@@ -196,14 +196,14 @@ class EvolutionDataAccumulator:
         """分析联赛模式"""
         logger.info("🔍 分析联赛模式...")
 
-        exp_by_league = {}
+        exp_by_league: Dict[str, List[Any]] = {}
         for exp in self.evolution.experiences:
             league = exp.context.get("league", "unknown")
             if league not in exp_by_league:
                 exp_by_league[league] = []
             exp_by_league[league].append(exp)
 
-        patterns = {}
+        patterns: Dict[str, Any] = {}
         for league, experiences in exp_by_league.items():
             if len(experiences) < 3:
                 continue
@@ -226,8 +226,8 @@ class EvolutionDataAccumulator:
 
     def get_accumulation_stats(self) -> Dict[str, Any]:
         """获取积累统计"""
-        exp_by_league = {}
-        exp_by_tag = {}
+        exp_by_league: Dict[str, int] = {}
+        exp_by_tag: Dict[str, int] = {}
         odds_distribution = {"low": 0, "medium": 0, "high": 0, "very_high": 0}
 
         for exp in self.evolution.experiences:

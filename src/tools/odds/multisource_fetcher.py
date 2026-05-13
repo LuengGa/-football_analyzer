@@ -4,10 +4,10 @@ import hashlib
 import re
 from dataclasses import asdict
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 import requests
 from src.core.data_contract import NormalizedLiveState, NormalizedMatch, NormalizedOdds
-from src.core.match_identity import MatchIdentityBuilder
+from src.core.match_identity import MatchIdentityBuilder, MatchIdentity
 from src.tools.odds.entity_resolver import EntityResolver
 from src.tools.odds.domestic_sources import DomesticSources
 from src.tools.odds.snapshot_store import SnapshotStore
@@ -274,10 +274,10 @@ class MultiSourceFetcher:
             if fid:
                 source_ids["500.com"] = {"fid": str(fid)}
 
-            match_id = self.identity.build(league_name, home_team, away_team, kickoff_time)
-            league_code = self.identity.league_resolver.resolve_code(league_name)
-            home_id = self.identity.team_resolver.resolve_team_id(home_team)
-            away_id = self.identity.team_resolver.resolve_team_id(away_team)
+            match_id = str(self.identity.build(f"{league_name}_{home_team}_{away_team}_{kickoff_time}").match_id)
+            league_code = str(self.resolver.resolve_league_id(league_name))
+            home_id = str(self.resolver.resolve_team_id(home_team))
+            away_id = str(self.resolver.resolve_team_id(away_team))
             status_raw = (fx.get("status") or "").strip().lower()
             if status_raw in {"live", "playing"}:
                 status = "LIVE"
@@ -318,7 +318,7 @@ class MultiSourceFetcher:
         market: str = "WDL",
         handicap: Optional[float] = None,
     ) -> Dict[str, Any]:
-        match_id = self.identity.build(league_name, home_team, away_team, kickoff_time)
+        match_id = str(self.identity.build(f"{league_name}_{home_team}_{away_team}_{kickoff_time}").match_id)
         fid: Optional[str] = None
         if isinstance(source_ids, dict):
             if isinstance(source_ids.get("500.com"), dict) and source_ids["500.com"].get("fid"):
@@ -340,8 +340,9 @@ class MultiSourceFetcher:
         source = str(meta.get("source") or "multisource")
         confidence = float(meta.get("confidence") or 0.0)
         degradations: List[str] = []
-        if isinstance(meta, dict) and isinstance(meta.get("degradations"), list):
-            degradations = [str(x) for x in meta.get("degradations") if x]
+        meta_degradations = meta.get("degradations") if isinstance(meta, dict) else None
+        if isinstance(meta_degradations, list):
+            degradations = [str(x) for x in meta_degradations if x]
         payload = raw.get("data") or {}
 
         selections: Dict[str, Dict[str, Any]] = {}
@@ -353,11 +354,12 @@ class MultiSourceFetcher:
             if isinstance(sp_market, dict):
                 try:
                     selections = {
-                        "H": {"odds": float(sp_market["home"]), "sp": float(sp_market["home"]), "last_update": now},
-                        "D": {"odds": float(sp_market["draw"]), "sp": float(sp_market["draw"]), "last_update": now},
-                        "A": {"odds": float(sp_market["away"]), "sp": float(sp_market["away"]), "last_update": now},
+                        "H": {"odds": float(cast(Any, sp_market["home"])), "sp": float(cast(Any, sp_market["home"])), "last_update": now},
+                        "D": {"odds": float(cast(Any, sp_market["draw"])), "sp": float(cast(Any, sp_market["draw"])), "last_update": now},
+                        "A": {"odds": float(cast(Any, sp_market["away"])), "sp": float(cast(Any, sp_market["away"])), "last_update": now},
                     }
-                    parsed_handicap = float(sp_market.get("handicap")) if sp_market.get("handicap") is not None else None
+                    hp = sp_market.get("handicap")
+                    parsed_handicap = float(cast(Any, hp)) if hp is not None else None
                 except Exception:
                     selections = {}
 
@@ -366,11 +368,12 @@ class MultiSourceFetcher:
             if isinstance(sp_market, dict):
                 try:
                     selections = {
-                        "H": {"odds": float(sp_market["home"]), "sp": float(sp_market["home"]), "last_update": now},
-                        "D": {"odds": float(sp_market["draw"]), "sp": float(sp_market["draw"]), "last_update": now},
-                        "A": {"odds": float(sp_market["away"]), "sp": float(sp_market["away"]), "last_update": now},
+                        "H": {"odds": float(cast(Any, sp_market["home"])), "sp": float(cast(Any, sp_market["home"])), "last_update": now},
+                        "D": {"odds": float(cast(Any, sp_market["draw"])), "sp": float(cast(Any, sp_market["draw"])), "last_update": now},
+                        "A": {"odds": float(cast(Any, sp_market["away"])), "sp": float(cast(Any, sp_market["away"])), "last_update": now},
                     }
-                    parsed_handicap = float(sp_market.get("handicap")) if sp_market.get("handicap") is not None else None
+                    bp = sp_market.get("handicap")
+                    parsed_handicap = float(cast(Any, bp)) if bp is not None else None
                 except Exception:
                     selections = {}
 
@@ -420,7 +423,7 @@ class MultiSourceFetcher:
                     eu = foreign_payload.get("eu_odds") or {}
                     for k, sel in (("H", "home"), ("D", "draw"), ("A", "away")):
                         if sel in eu and eu[sel] is not None:
-                            selections[k] = {"odds": float(eu[sel]), "last_update": now}
+                            selections[k] = {"odds": float(cast(Any, eu[sel])), "last_update": now}
                 if not selections and isinstance(foreign_payload, dict) and isinstance(foreign_payload.get("foreign_api_odds"), list):
                     arr = foreign_payload.get("foreign_api_odds") or []
                     if arr and isinstance(arr[0], dict) and isinstance(arr[0].get("odds"), list):
@@ -430,7 +433,7 @@ class MultiSourceFetcher:
                             if not isinstance(it, dict) or it.get("price") is None:
                                 continue
                             name = str(it.get("name") or "").strip().lower()
-                            price = float(it.get("price"))
+                            price = float(cast(Any, it.get("price")))
                             if name in {"draw", "平局"}:
                                 mapped["D"] = price
                             elif name and name in str(arr[0].get("home_team_en") or "").strip().lower():
@@ -439,9 +442,9 @@ class MultiSourceFetcher:
                                 mapped["A"] = price
                         if len(mapped) < 3 and len(odds_arr) >= 3:
                             try:
-                                mapped.setdefault("H", float(odds_arr[0].get("price")))
-                                mapped.setdefault("D", float(odds_arr[1].get("price")))
-                                mapped.setdefault("A", float(odds_arr[2].get("price")))
+                                mapped.setdefault("H", float(cast(Any, odds_arr[0].get("price"))))
+                                mapped.setdefault("D", float(cast(Any, odds_arr[1].get("price"))))
+                                mapped.setdefault("A", float(cast(Any, odds_arr[2].get("price"))))
                             except Exception:
                                 mapped = {}
                         if mapped.get("H") is not None and mapped.get("D") is not None and mapped.get("A") is not None:
@@ -515,7 +518,7 @@ class MultiSourceFetcher:
                     "match_id": None,
                     "error": {"code": "BAD_INPUT", "message": "need match_id or (league_name,home_team,away_team,kickoff_time)"},
                 }
-            match_id = self.identity.build(str(league_name), str(home_team), str(away_team), str(kickoff_time))
+            match_id = str(self.identity.build(f"{league_name}_{home_team}_{away_team}_{kickoff_time}").match_id)
 
         if not (home_team and away_team and kickoff_time and league_name):
             m = self.store.get_match(match_id)
@@ -578,13 +581,10 @@ class MultiSourceFetcher:
         live = NormalizedLiveState(
             match_id=match_id,
             minute=minute,
-            score_ft=score_ft,
-            red_cards=rc,
-            lineups=None,
-            injuries_suspensions=None,
-            key_events=None,
+            home_score=int(score_ft.split("-")[0]) if score_ft and "-" in score_ft else None,
+            away_score=int(score_ft.split("-")[1]) if score_ft and "-" in score_ft else None,
+            is_live=minute > 0,
             source=source,
-            confidence=confidence,
             raw_ref=raw_ref,
         )
         return {"ok": True, **asdict(live)}
@@ -642,7 +642,7 @@ class MultiSourceFetcher:
             if fid:
                 source_ids["500.com"] = {"fid": str(fid)}
 
-            match_id = str(r.get("match_id") or self.identity.build(league_name, home_team, away_team, kickoff_time))
+            match_id = str(r.get("match_id") or self.identity.build(f"{league_name}_{home_team}_{away_team}_{kickoff_time}").match_id)
             status_raw = str(r.get("status") or "FINISHED").strip().upper()
             if status_raw in {"CANCELLED", "VOID"}:
                 status = "CANCELLED"

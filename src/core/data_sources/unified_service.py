@@ -44,7 +44,7 @@ class UnifiedDataService:
 
     def __init__(self):
         self.sources: List[DataSource] = self._init_sources()
-        self._cache: Dict[str, Any] = {}
+        self._cache: Dict[str, Dict[str, Any]] = {}
         self._cache_ttl = 300  # 5分钟缓存
 
     def _init_sources(self) -> List[DataSource]:
@@ -101,7 +101,7 @@ class UnifiedDataService:
         if cache_key in self._cache:
             return self._cache[cache_key]
 
-        result = {"source": [], "odds": {}}
+        result: Dict[str, Any] = {"source": [], "odds": {}}
 
         # 1. 尝试API
         api_result = await self._get_odds_from_api(home_team, away_team, league)
@@ -137,7 +137,7 @@ class UnifiedDataService:
             league_cn = league_map.get(league, league)
 
             raw = get_global_arbitrage_data(league_cn, home_team, away_team)
-            data = json.loads(raw)
+            data: Dict[str, Any] = json.loads(raw)
 
             if "error" in data:
                 logger.warning(f"API返回错误: {data['error']}")
@@ -186,7 +186,7 @@ class UnifiedDataService:
         if cache_key in self._cache:
             return self._cache[cache_key]
 
-        result = {"source": [], "data": {}}
+        result: Dict[str, Any] = {"source": [], "data": {}}
 
         # 1. 尝试API
         api_data = await self._get_match_info_from_api(home_team, away_team, league)
@@ -217,16 +217,21 @@ class UnifiedDataService:
     ) -> Optional[Dict[str, Any]]:
         """从API获取比赛信息"""
         try:
-            from src.afa_v9.data_sources.football_sources import FootballDataSource
+            from src.afa_v9.data_sources.football_sources import APIFootballDataSource
+            import os
 
-            source = FootballDataSource()
-            fixtures = source.get_upcoming_fixtures(league=league, limit=10)
+            api_key = os.environ.get("FOOTBALL_API_KEY", "")
+            base_url = os.environ.get("FOOTBALL_API_URL", "https://v3.football.api-sports.io")
+            source = APIFootballDataSource(api_key=api_key, base_url=base_url)
+            fixtures = source.get_fixtures()
 
-            for f in fixtures:
-                if home_team.lower() in f.home_team.lower() and away_team.lower() in f.away_team.lower():
+            for f in fixtures.get("response", []):
+                home_team_attr = f.get("teams", {}).get("home", {}).get("name", "")
+                away_team_attr = f.get("teams", {}).get("away", {}).get("name", "")
+                if home_team.lower() in str(home_team_attr).lower() and away_team.lower() in str(away_team_attr).lower():
                     return {
-                        "date": f.date,
-                        "venue": getattr(f, 'venue', 'unknown'),
+                        "date": f.get("fixture", {}).get("date", ""),
+                        "venue": f.get("fixture", {}).get("venue", {}).get("name", "unknown"),
                         "league": league
                     }
         except Exception as e:
@@ -243,7 +248,7 @@ class UnifiedDataService:
             from src.core.mcp.adapter import MCPServer
 
             server = MCPServer()
-            result = await server.call_tool("get_match_data", {
+            result: Optional[Dict[str, Any]] = await server.call_tool("get_match_data", {
                 "home_team": home_team,
                 "away_team": away_team
             })
@@ -285,7 +290,7 @@ class UnifiedDataService:
         if cache_key in self._cache:
             return self._cache[cache_key]
 
-        result = {"source": [], "injuries": []}
+        result: Dict[str, Any] = {"source": [], "injuries": []}
 
         # 尝试浏览器获取
         try:
@@ -314,10 +319,13 @@ class UnifiedDataService:
     ) -> Dict[str, Any]:
         """获取天气信息"""
         try:
-            from src.afa_v9.data_sources.weather_sources import WeatherDataSource
+            from src.afa_v9.data_sources.weather_sources import OpenWeatherMapSource
+            import os
 
-            source = WeatherDataSource()
-            weather = source.get_weather(venue)
+            api_key = os.environ.get("WEATHER_API_KEY", "")
+            base_url = os.environ.get("WEATHER_API_URL", "https://api.openweathermap.org/data/2.5")
+            source = OpenWeatherMapSource(api_key=api_key, base_url=base_url)
+            weather = source.get_current_weather(city=venue)
 
             return {
                 "venue": venue,

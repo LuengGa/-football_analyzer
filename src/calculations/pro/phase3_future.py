@@ -64,9 +64,9 @@ class GoalTimeModel:
         events = []
         home_goals = 0
         away_goals = 0
-        minutes = []
+        minutes: List[int] = []
         
-        minute = 0
+        minute: float = 0.0
         while minute < self.minutes * self.injury_time_factor:
             time_to_next_home = random.expovariate(home_rate) if home_rate > 0 else float('inf')
             time_to_next_away = random.expovariate(away_rate) if away_rate > 0 else float('inf')
@@ -76,13 +76,13 @@ class GoalTimeModel:
             if minute + next_goal_time > self.minutes * self.injury_time_factor:
                 break
             
-            for m in range(len(minutes), int(minute + next_goal_time) + 1):
-                minutes.append((home_goals, away_goals))
+            current_minute = int(minute + next_goal_time)
+            minutes.append(current_minute)
             
             if time_to_next_home < time_to_next_away:
                 home_goals += 1
                 events.append(GoalEvent(
-                    minute=int(minute + next_goal_time),
+                    minute=current_minute,
                     team="home",
                     home_score=home_goals,
                     away_score=away_goals
@@ -90,7 +90,7 @@ class GoalTimeModel:
             else:
                 away_goals += 1
                 events.append(GoalEvent(
-                    minute=int(minute + next_goal_time),
+                    minute=current_minute,
                     team="away",
                     home_score=home_goals,
                     away_score=away_goals
@@ -98,8 +98,7 @@ class GoalTimeModel:
             
             minute += next_goal_time
         
-        for m in range(len(minutes), int(self.minutes * self.injury_time_factor) + 1):
-            minutes.append((home_goals, away_goals))
+        minutes.append(int(self.minutes * self.injury_time_factor))
         
         return MatchTimeline(
             events=events,

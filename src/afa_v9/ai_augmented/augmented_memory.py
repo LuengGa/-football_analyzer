@@ -110,11 +110,11 @@ class LLMMemoryManager:
 2. 模式与趋势
 3. 行动建议（如适用）"""
                 
-                return self.llm.generate(
+                return str(self.llm.generate(  # type: ignore[return-value]
                     prompt=prompt,
                     temperature=0.4,
                     max_tokens=400
-                )
+                ))
             else:
                 return self._fallback_summary(memories, focus)
                 
@@ -226,7 +226,7 @@ class LLMMemoryManager:
     
     def _fallback_summary(self, memories: List[Dict], focus: str) -> str:
         """降级总结方法"""
-        categories = {}
+        categories: Dict[str, int] = {}
         for m in memories:
             cat = m.get("category", "unknown")
             categories[cat] = categories.get(cat, 0) + 1

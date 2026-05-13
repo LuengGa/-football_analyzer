@@ -26,7 +26,7 @@ class AIPredictionContext:
     """AI预测上下文 (L4)"""
     has_injury: bool = False
     weather_impact: str = "normal"
-    recent_form: List[bool] = None
+    recent_form: Optional[List[bool]] = None
     home_advantage_active: bool = True
     historical_data_available: bool = True
 
@@ -207,9 +207,9 @@ class EnhancedPoissonGoalModel:
 
         home_win_prob, draw_prob, away_win_prob = self._calculate_match_probabilities(home_lambda, away_lambda)
 
-        score_probs = {}
-        max_prob = 0
-        most_likely = (1, 1)
+        score_probs: Dict[Tuple[int, int], float] = {}
+        max_prob: float = 0.0
+        most_likely: Tuple[int, int] = (1, 1)
         for i in range(8):
             for j in range(8):
                 prob = self._poisson_prob(i, home_lambda) * self._poisson_prob(j, away_lambda)

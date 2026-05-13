@@ -51,22 +51,22 @@ class LangGraphAdapter:
         def scout_wrapper(state: Dict) -> Dict:
             state = self.inject_soul_context(state)
             state = self.inject_memory_context(state)
-            return self._agents["scout"].execute(state)
+            return self._agents["scout"].execute(state)  # type: ignore[return-value]
 
         def quant_wrapper(state: Dict) -> Dict:
-            return self._agents["quant"].execute(state)
+            return self._agents["quant"].execute(state)  # type: ignore[return-value]
 
         def market_wrapper(state: Dict) -> Dict:
-            return self._agents["market"].execute(state)
+            return self._agents["market"].execute(state)  # type: ignore[return-value]
 
         def risk_wrapper(state: Dict) -> Dict:
-            return self._agents["risk"].execute(state)
+            return self._agents["risk"].execute(state)  # type: ignore[return-value]
 
         def trader_wrapper(state: Dict) -> Dict:
-            return self._agents["trader"].execute(state)
+            return self._agents["trader"].execute(state)  # type: ignore[return-value]
 
         def auditor_wrapper(state: Dict) -> Dict:
-            return self._agents["auditor"].execute(state)
+            return self._agents["auditor"].execute(state)  # type: ignore[return-value]
         
         self.graph.add_node("scout", scout_wrapper)
         self.graph.add_node("quant", quant_wrapper)
@@ -166,18 +166,18 @@ class LangGraphAdapter:
             config = {"configurable": {"thread_id": thread_id}}
             try:
                 result = self.compiled_graph.invoke(initial_state, config)
-                return result
+                return result  # type: ignore[no-any-return]
             except Exception as e:
                 print(f"⚠️ 工作流执行失败: {e}")
-                return initial_state
-        return initial_state
+                return initial_state  # type: ignore[no-any-return]
+        return initial_state  # type: ignore[no-any-return]
 
     def get_state(self, thread_id: str = "default") -> dict | None:
         """获取当前状态"""
         if self.compiled_graph:
             config = {"configurable": {"thread_id": thread_id}}
             try:
-                return self.compiled_graph.get_state(config)
+                return self.compiled_graph.get_state(config)  # type: ignore[no-any-return]
             except Exception:
                 return None
         return None

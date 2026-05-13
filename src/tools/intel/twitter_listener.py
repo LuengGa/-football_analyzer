@@ -10,7 +10,7 @@ import os
 import time
 import threading
 import json
-from typing import Dict, List, Optional, Callable
+from typing import Dict, List, Optional, Callable, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -420,7 +420,7 @@ class BetfairWebSocketListener:
                 logger.error(f"Polling error: {e}")
                 time.sleep(5)
     
-    def _fetch_market_odds(self, market_id: str) -> Optional[dict]:
+    def _fetch_market_odds(self, market_id: str) -> Optional[Dict[str, Any]]:
         """通过 HTTP API 获取市场赔率"""
         try:
             import requests
@@ -431,9 +431,9 @@ class BetfairWebSocketListener:
                 "orderProjection": "EXECUTABLE"
             }
             
-            response = self.session.post(url, json=payload)
+            response = self.session.post(url, json=payload, timeout=10)
             if response.status_code == 200:
-                return response.json()
+                return response.json()  # type: ignore[return-value, no-any-return]
         
         except Exception as e:
             logger.error(f"Failed to fetch odds for {market_id}: {e}")
@@ -461,9 +461,9 @@ class BetfairWebSocketListener:
         except Exception as e:
             logger.error(f"Error processing odds update: {e}")
     
-    def _detect_anomalies(self, data: dict) -> List[dict]:
+    def _detect_anomalies(self, data: dict) -> List[dict[str, Any]]:
         """检测赔率异常波动"""
-        anomalies = []
+        anomalies: List[dict[str, Any]] = []
         
         # 简化实现：检测赔率变化超过阈值
         threshold = 0.10  # 10% 变化视为异常

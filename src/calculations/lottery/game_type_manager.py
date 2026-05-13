@@ -241,7 +241,8 @@ class GameTypeManager:
     
     def get_game_type(self, game_type_id: str) -> Optional[GameType]:
         """获取玩法类型"""
-        return self.game_types.get(game_type_id)
+        result = self.game_types.get(game_type_id)
+        return result if result is not None else None
     
     def get_by_category(self, category: str) -> List[GameType]:
         """按类别获取玩法"""
@@ -277,7 +278,7 @@ class GameTypeManager:
     
     def count_by_category(self) -> Dict[str, int]:
         """按类别统计玩法数量"""
-        counts = {}
+        counts: Dict[str, int] = {}
         for gt in self.game_types.values():
             counts[gt.category] = counts.get(gt.category, 0) + 1
         return counts
@@ -327,16 +328,16 @@ class ParlayCalculator:
         来源：中国体彩网官方规则
         """
         # 本金2元 × SP值连乘 × 65%返奖率
-        raw_bonus = 2.0 * np.prod(estimated_sp_list) * 0.65
+        raw_bonus = float(2.0 * np.prod(estimated_sp_list) * 0.65)
         # 保底2元
-        real_bonus = max(raw_bonus, 2.0)
+        real_bonus = float(max(raw_bonus, 2.0))
         # 1万元以上扣20%税
         if real_bonus >= 10000.0:
             real_bonus *= 0.80
-        return round(real_bonus, 2)
+        return float(round(real_bonus, 2))
     
     @staticmethod
-    def calculate_traditional_bonus(total_sales: float, winners: int, is_14game: bool = True) -> Dict[str, float]:
+    def calculate_traditional_bonus(total_sales: float, winners: int, is_14game: bool = True) -> Dict[str, Any]:
         """计算传统足彩奖金（官方规则）
         
         官方规则：
@@ -438,7 +439,7 @@ class ParlayCalculator:
             奖金计算结果
         """
         total_bonus = 0.0
-        breakdown = []
+        breakdown: List[Dict[str, Any]] = []
         
         for pass_type in range(min_pass, max_pass + 1):
             count = ParlayCalculator.calculate_mn_combinations(len(selections), pass_type)

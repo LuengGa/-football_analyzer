@@ -25,7 +25,7 @@ import json
 import inspect
 import logging
 from pydantic import BaseModel, Field, ValidationError
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Callable
 import mcp.types as types
 
 from src.tools.odds.mcp_tools import TOOL_MAPPING
@@ -218,7 +218,7 @@ class MatchResultArgs(BaseModel):
 class ToolDefinition:
     """统一工具定义：名称 + 描述 + 参数模型 + 执行函数"""
 
-    def __init__(self, name: str, description: str, model: type[BaseModel], func: callable):
+    def __init__(self, name: str, description: str, model: type[BaseModel], func: Callable[..., Any]):
         self.name = name
         self.description = description
         self.model = model
@@ -522,7 +522,7 @@ def export_registry() -> Dict[str, Any]:
     return {"version": "tool_registry_v3", "tools": tools}
 
 
-async def execute_tool(name: str, args_dict: dict) -> dict:
+async def execute_tool(name: str, args_dict: dict) -> Dict[str, Any]:
     """执行指定工具"""
     # 查找工具定义
     tool_def = REGISTRY.get(name)
@@ -536,7 +536,7 @@ async def execute_tool(name: str, args_dict: dict) -> dict:
         return {"ok": False, "error": {"code": "VALIDATION_ERROR", "message": str(e)}, "meta": {"mock": False}}
 
     # 执行
-    args = validated.model_dump()
+    args: Dict[str, Any] = validated.model_dump()
     if inspect.iscoroutinefunction(tool_def.func):
         return await tool_def.func(**args)
     else:

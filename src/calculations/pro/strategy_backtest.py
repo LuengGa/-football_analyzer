@@ -17,10 +17,11 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from .kelly_criterion import KellyCriterion
-from .poisson_model import PoissonGoalModel
+from .kelly_criterion import EnhancedKellyCriterion
+from .poisson_model import EnhancedPoissonGoalModel
 from .value_finder import ValueBetFinder, ValueBet
 from .advanced_backtest import BetType
+from .domain_models import BetType as DomainBetType
 
 
 @dataclass
@@ -32,7 +33,7 @@ class StrategyBet:
     home_team: str
     away_team: str
     strategy_name: str
-    bet_type: BetType
+    bet_type: DomainBetType
     odds: float
     stake: float
     predicted_prob: float
@@ -68,7 +69,7 @@ class StrategyTester:
     
     def __init__(self, initial_capital: float = 10000):
         self.initial_capital = initial_capital
-        self.kelly = KellyCriterion(initial_capital=initial_capital)
+        self.kelly = EnhancedKellyCriterion(initial_capital=initial_capital)
         self.value_finder = ValueBetFinder()
         self.strategies = {
             'poisson_value': self._poisson_value_strategy,
@@ -81,7 +82,7 @@ class StrategyTester:
         match,
         poisson_model,
         value_threshold: float = 0.03
-    ) -> Optional[Tuple[BetType, float, float, float]]:
+    ) -> Optional[Tuple[DomainBetType, float, float, float]]:
         """Poisson价值投注策略"""
         if not hasattr(match, 'opening_odds') or not match.opening_odds:
             return None
@@ -120,9 +121,9 @@ class StrategyTester:
         if value_bets:
             best = value_bets[0]
             bet_type_map = {
-                'home': BetType.HOME,
-                'draw': BetType.DRAW,
-                'away': BetType.AWAY
+                'home': DomainBetType.HOME,
+                'draw': DomainBetType.DRAW,
+                'away': DomainBetType.AWAY
             }
             return (
                 bet_type_map[best.bet_type.value],
@@ -137,7 +138,7 @@ class StrategyTester:
         match,
         poisson_model,
         value_threshold: float = 0.02
-    ) -> Optional[Tuple[BetType, float, float, float]]:
+    ) -> Optional[Tuple[DomainBetType, float, float, float]]:
         """6层分析策略 (简化版)"""
         # 结合赔率偏差和Poisson预测
         base_result = self._poisson_value_strategy(match, poisson_model, value_threshold * 0.7)
@@ -152,7 +153,7 @@ class StrategyTester:
         self,
         match,
         poisson_model
-    ) -> Optional[Tuple[BetType, float, float, float]]:
+    ) -> Optional[Tuple[DomainBetType, float, float, float]]:
         """简单热门投注策略 (基准线)"""
         if not hasattr(match, 'opening_odds') or not match.opening_odds:
             return None
@@ -171,7 +172,7 @@ class StrategyTester:
         for outcome in ['home', 'draw', 'away']:
             o = odds.get(outcome)
             if o and o > 1:
-                outcomes.append( (BetType[outcome.upper()], o, 1/o) )
+                outcomes.append( (DomainBetType[outcome.upper()], o, 1/o) )
         
         if outcomes:
             best = max(outcomes, key=lambda x: x[2])
@@ -190,8 +191,7 @@ class StrategyTester:
         """
         完整策略回测
         """
-        self.kelly.reset()
-        all_bets = []
+        all_bets: List[StrategyBet] = []
         
         strategy_func = self.strategies[strategy_name]
         
@@ -200,17 +200,19 @@ class StrategyTester:
             bet_info = strategy_func(match, poisson_model, value_threshold) if strategy_name != 'simple_favorite' \
                         else strategy_func(match, poisson_model)
             
-            if bet_info:
+            if bet_info is not None:
                 bet_type, odds, pred_prob, edge = bet_info
                 
                 # 计算投注大小
                 if use_kelly:
                     kelly_bet = self.kelly.calculate_kelly_bet(
-                        pred_prob, odds, confidence=min(1.0, edge * 5)
+                        win_prob=pred_prob,
+                        odds_decimal=odds,
+                        confidence=min(1.0, edge * 5)
                     )
-                    stake = kelly_bet.bet_size if kelly_bet.bet_size > 0 else 0
+                    stake: float = kelly_bet.bet_size if kelly_bet.bet_size > 0 else 0
                 else:
-                    stake = 50  # 固定投注
+                    stake = 50.0  # 固定投注
                 
                 if stake <= 0:
                     continue
@@ -225,9 +227,9 @@ class StrategyTester:
                 
                 # 更新凯利
                 if use_kelly:
-                    self.kelly.place_bet(
-                        self.kelly.calculate_kelly_bet(pred_prob, odds, min(1.0, edge * 5)),
-                        won
+                    self.kelly.update_capital(
+                        stake * (odds - 1) if won else -stake,
+                        is_win=won
                     )
                 
                 # 记录
@@ -264,11 +266,11 @@ class StrategyTester:
         if home_goals is None or away_goals is None:
             return False
             
-        if bet_type == BetType.HOME:
+        if bet_type == DomainBetType.HOME:
             return home_goals > away_goals
-        elif bet_type == BetType.DRAW:
+        elif bet_type == DomainBetType.DRAW:
             return home_goals == away_goals
-        elif bet_type == BetType.AWAY:
+        elif bet_type == DomainBetType.AWAY:
             return home_goals < away_goals
         else:
             return False
@@ -278,10 +280,10 @@ class StrategyTester:
         if not bets:
             return StrategyResult(
                 strategy_name=strategy_name,
-                total_bets=0, wins=0, losses=0, win_rate=0,
-                total_stake=0, net_profit=0, roi=0, max_drawdown=0,
-                sharpe_ratio=0, profit_factor=0,
-                league_performance={},
+                total_bets=0, wins=0, losses=0, win_rate=0.0,
+                total_stake=0.0, net_profit=0.0, roi=0.0, max_drawdown=0.0,
+                sharpe_ratio=0.0, profit_factor=0.0,
+                league_performance=dict(),
                 bets=[]
             )
         
@@ -295,10 +297,10 @@ class StrategyTester:
         roi = (net_profit / total_stake) * 100 if total_stake > 0 else 0
         
         # 计算回撤
-        capital = self.initial_capital
-        peak = capital
-        max_drawdown = 0
-        capital_series = [capital]
+        capital: float = self.initial_capital
+        peak: float = capital
+        max_drawdown: float = 0.0
+        capital_series: List[float] = [capital]
         
         for b in bets:
             capital += b.profit
@@ -310,7 +312,7 @@ class StrategyTester:
                 max_drawdown = drawdown
         
         # 计算夏普比率
-        returns = []
+        returns: List[float] = []
         for i in range(1, len(capital_series)):
             if capital_series[i-1] > 0:
                 r = (capital_series[i] - capital_series[i-1]) / capital_series[i-1]
@@ -329,7 +331,7 @@ class StrategyTester:
         profit_factor = gross_win / gross_loss if gross_loss > 0 else float('inf')
         
         # 联赛表现
-        league_performance = defaultdict(lambda: {'bets': 0, 'wins': 0, 'profit': 0})
+        league_performance: Dict[str, Dict[str, float]] = defaultdict(lambda: {'bets': 0.0, 'wins': 0.0, 'profit': 0.0})
         for b in bets:
             league_performance[b.league]['bets'] += 1
             league_performance[b.league]['profit'] += b.profit

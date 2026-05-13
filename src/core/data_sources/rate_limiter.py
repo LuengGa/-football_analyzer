@@ -28,7 +28,7 @@ class TokenBucket:
     def __init__(self, rate: float, capacity: int):
         self.rate = rate
         self.capacity = capacity
-        self.tokens = capacity
+        self.tokens: float = capacity
         self.last_update = time.time()
         self.lock = threading.Lock()
 
@@ -95,7 +95,7 @@ class RateLimiter:
             return {"available": True}
 
         with self.locks[source]:
-            history = self.request_history.get(source, [])
+            history: deque = self.request_history.get(source, deque())
             recent = sum(
                 1 for t in history if datetime.now() - t < timedelta(hours=1)
             )

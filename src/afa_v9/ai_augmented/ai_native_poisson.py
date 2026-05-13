@@ -31,7 +31,7 @@ class AIPredictionContext:
     """AI预测上下文"""
     has_injury: bool = False
     weather_impact: str = "normal"
-    recent_form: List[bool] = None
+    recent_form: List[bool] = None  # type: ignore[assignment]
     home_advantage_active: bool = True
     historical_data_available: bool = True
     team_morale: str = "normal"
@@ -202,7 +202,7 @@ class AINativePoissonModel:
         context: AIPredictionContext
     ) -> float:
         """计算信心分数"""
-        confidence = 0.5
+        confidence: float = 0.5
         
         factor_strength = sum(abs(v) for v in factors.values())
         confidence += factor_strength * 0.3
@@ -218,7 +218,7 @@ class AINativePoissonModel:
         if context.recent_form and len(context.recent_form) >= 5:
             confidence += 0.05
         
-        return min(0.95, max(0.3, confidence))
+        return float(min(0.95, max(0.3, confidence)))
     
     def _assess_risk(self, confidence: float, home: float, draw: float, away: float) -> str:
         """评估风险等级"""

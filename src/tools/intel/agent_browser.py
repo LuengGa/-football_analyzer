@@ -165,11 +165,13 @@ class AgentBrowser:
             return []
         target_date = date or datetime.now().strftime("%Y-%m-%d")
         query = f"site:zx.500.com jczq 竞彩足球 {target_date} 赛程"
-        results = self.gatekeeper.run_sync(
-            lambda: list(self.ddgs.text(query, max_results=10)),
+        results: List[Any] = self.gatekeeper.run_sync(
+            lambda: list(self.ddgs.text(query, max_results=10) or []),  # type: ignore[union-attr]
             timeout_s=self.gatekeeper.policy.ddgs_timeout_s,
             default=[],
         )
+        for r in results:
+            r["href"] = r.get("href") or r.get("url") or ""  # type: ignore[index]
         return self._extract_fixtures_from_search_results(results, date=target_date)
 
     def scrape_500_fixtures(self, date: Optional[str] = None) -> list:
@@ -193,7 +195,7 @@ class AgentBrowser:
 
                 match = re.search(r"\[.*\]", res, re.DOTALL)
                 if match:
-                    return json.loads(match.group(0))
+                    return json.loads(match.group(0))  # type: ignore[no-any-return]
             except Exception as e:
                 print(f"[AgentBrowser] Visual scrape error: {e}")
 
@@ -304,8 +306,8 @@ class AgentBrowser:
         if not self.ddgs:
             return []
         query = f"澳客 OR 捷报比分 {home_team} vs {away_team} 赔率 分析"
-        results = self.gatekeeper.run_sync(
-            lambda: list(self.ddgs.text(query, max_results=3)),
+        results: List[Any] = self.gatekeeper.run_sync(
+            lambda: list(self.ddgs.text(query, max_results=3) or []),  # type: ignore[union-attr]
             timeout_s=self.gatekeeper.policy.ddgs_timeout_s,
             default=[],
         )
@@ -356,9 +358,9 @@ class AgentBrowser:
             eu = obj.get("eu_odds") if isinstance(obj, dict) else None
             if not isinstance(eu, dict):
                 raise ValueError("eu_odds missing")
-            home = float(eu.get("home"))
-            draw = float(eu.get("draw"))
-            away = float(eu.get("away"))
+            home = float(eu.get("home"))  # type: ignore[arg-type]
+            draw = float(eu.get("draw"))  # type: ignore[arg-type]
+            away = float(eu.get("away"))  # type: ignore[arg-type]
             if not (1.01 <= home <= 200 and 1.01 <= draw <= 200 and 1.01 <= away <= 200):
                 raise ValueError("odds out of range")
         except Exception:
@@ -519,7 +521,7 @@ class AgentBrowser:
         if not self.ddgs:
             return []
         return self.gatekeeper.run_sync(
-            lambda: list(self.ddgs.text(query, max_results=max_results)),
+            lambda: list(self.ddgs.text(query, max_results=max_results) or []),  # type: ignore[union-attr]
             timeout_s=self.gatekeeper.policy.ddgs_timeout_s,
             default=[],
         )

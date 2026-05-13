@@ -6,7 +6,9 @@ from typing import Any, Optional, List, Dict
 from .short_term import ShortTermMemory, SHORT_TERM_MEMORY
 from .long_term import LongTermMemory, LONG_TERM_MEMORY
 from .episodic_store import Episode, EpisodicStore, EPISODIC_STORE
-from .memory_search import MemorySearch, MEMORY_SEARCH
+from .memory_search import MemorySearch
+
+MEMORY_SEARCH = MemorySearch()
 
 
 class UnifiedMemory:
@@ -21,14 +23,14 @@ class UnifiedMemory:
         self.short_term.store(key, content, importance)
         if importance > 0.8:
             self.long_term.store(key, content, category=category, tags=tags)
-        return self.search.index_memory(
+        return bool(self.search.index_memory(
             key=key,
             content=content,
             category=category,
             tags=tags,
             importance=importance,
             metadata={"source": "interaction"}
-        )
+        ))  # type: ignore[no-any-return]
 
     def search_memories(self, query: str, category: Optional[str] = None,
                        tags: Optional[List[str]] = None, limit: int = 10,

@@ -37,14 +37,14 @@ class EntityResolver:
             
         # 1. 精确匹配
         if raw_name in self.standard_leagues:
-            return self.standard_leagues[raw_name]
+            return int(self.standard_leagues[raw_name])
             
         # 2. 模糊匹配
         matches = difflib.get_close_matches(raw_name, self.standard_leagues.keys(), n=1, cutoff=0.4)
         if matches:
             resolved = matches[0]
             print(f"   -> 🔤 [Entity Resolver] 将联赛 '{raw_name}' 模糊纠正为 '{resolved}' (ID: {self.standard_leagues[resolved]})")
-            return self.standard_leagues[resolved]
+            return int(self.standard_leagues[resolved])
             
         print(f"   -> ⚠️ [Entity Resolver] 无法识别联赛 '{raw_name}'，安全降级回退至英超 (ID: 39)")
         return 39
@@ -55,14 +55,25 @@ class EntityResolver:
             return 0
             
         if raw_name in self.standard_teams:
-            return self.standard_teams[raw_name]
+            return int(self.standard_teams[raw_name])
             
         matches = difflib.get_close_matches(raw_name, self.standard_teams.keys(), n=1, cutoff=0.4)
         if matches:
             resolved = matches[0]
-            return self.standard_teams[resolved]
+            return int(self.standard_teams[resolved])
             
         return 0
+
+    def resolve_team(self, raw_name: str) -> Dict[str, Any]:
+        """
+        模糊匹配球队名称，返回标准化格式。
+        与 multisource_fetcher 的预期接口兼容。
+        """
+        team_id = self.resolve_team_id(raw_name)
+        return {
+            "ok": True,
+            "data": {"team_id": team_id, "name": raw_name}
+        }
 
     def resolve_match_id(self, home_team: str, away_team: str, date: Optional[str] = None) -> str:
         """

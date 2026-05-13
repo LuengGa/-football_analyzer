@@ -7,7 +7,7 @@ from typing import Dict, Any, List, Optional
 import numpy as np
 from datetime import datetime
 from dataclasses import dataclass
-from .six_layer_analyzer import (
+from calculations.quant.six_layer_analyzer import (
     get_six_layer_analyzer,
     AsianHandicap,
     Layer6ValueOpportunityEngine
@@ -20,11 +20,11 @@ class MarketOdds:
     market: str  # eu, asian, jingcai, beidan
     home_odds: float
     away_odds: float
-    draw_odds: float = None
-    handicap: float = None
-    water: float = None
-    timestamp: datetime = None
-    source: str = None
+    draw_odds: Optional[float] = None
+    handicap: Optional[float] = None
+    water: Optional[float] = None
+    timestamp: Optional[datetime] = None
+    source: Optional[str] = None
 
 
 class MarketComparator:
@@ -62,13 +62,17 @@ class MarketComparator:
         if len(self.markets_data) < 2:
             return {"error": "需要至少2个市场数据"}
         
-        results = {
-            "comparisons": [],
-            "pricing_errors": [],
-            "opportunities": []
+        comparisons: List[Dict[str, Any]] = []
+        pricing_errors: List[Dict[str, Any]] = []
+        opportunities: List[Dict[str, Any]] = []
+        
+        results: Dict[str, Any] = {
+            "comparisons": comparisons,
+            "pricing_errors": pricing_errors,
+            "opportunities": opportunities
         }
         
-        market_probs = {}
+        market_probs: Dict[str, Dict[str, float]] = {}
         for market, data in self.markets_data.items():
             if data.get("home"):
                 market_probs[market] = {
@@ -108,12 +112,14 @@ class MarketComparator:
     
     def _find_opportunities(self, market_probs: Dict) -> List[Dict]:
         """发现价值机会"""
-        opportunities = []
+        opportunities: List[Dict[str, Any]] = []
         
         for outcome in ["home", "away"]:
             probs = {m: data[outcome] for m, data in market_probs.items()}
-            min_market = min(probs, key=probs.get)
-            max_market = max(probs, key=probs.get)
+            if not probs:
+                continue
+            min_market = min(probs.items(), key=lambda x: x[1])[0]
+            max_market = max(probs.items(), key=lambda x: x[1])[0]
             
             diff = probs[max_market] - probs[min_market]
             if diff > 0.03:
@@ -219,18 +225,21 @@ class BookmakerIntentAnalyzer:
             beidan_sp: 北单SP值 {"home": x, "draw": x, "away": x}
             odds_history: 赔率历史数据
         """
-        result = {
+        markets_analyzed: List[str] = []
+        fund_flows: Dict[str, Any] = {}
+        
+        result: Dict[str, Any] = {
             "timestamp": datetime.now().isoformat(),
-            "markets_analyzed": [],
+            "markets_analyzed": markets_analyzed,
             "market_comparison": {},
-            "fund_flows": {},
+            "fund_flows": fund_flows,
             "pricing_errors": [],
             "opportunities": [],
             "intents": {},
             "six_layer_analysis": {}
         }
         
-        bookmaker_data = []
+        bookmaker_data: List[Dict[str, Any]] = []
         if eu_odds:
             bookmaker_data.append({"bookmaker": "欧洲平均", "odds": eu_odds})
         if jingcai_odds:
@@ -299,13 +308,13 @@ class BookmakerIntentAnalyzer:
     
     def _analyze_intent(
         self,
-        fund_flows: Dict,
-        pricing_errors: List,
-        handicap: float,
-        layer5_result: Dict
+        fund_flows: Dict[str, Any],
+        pricing_errors: List[Any],
+        handicap: Optional[float],
+        layer5_result: Dict[str, Any]
     ) -> Dict[str, Any]:
         """分析庄家意图"""
-        intents = {}
+        intents: Dict[str, Any] = {}
         
         for market, flow in fund_flows.items():
             if flow["fund_flow"] == "inflow":
@@ -323,11 +332,12 @@ class BookmakerIntentAnalyzer:
         
         if layer5_result.get("primary_pattern"):
             pattern = layer5_result["primary_pattern"]
-            intents["trading_pattern"] = {
-                "name": pattern.get("name"),
-                "confidence": pattern.get("confidence"),
-                "analysis": layer5_result.get("analysis")
-            }
+            if isinstance(pattern, dict):
+                intents["trading_pattern"] = {
+                    "name": pattern.get("name"),
+                    "confidence": pattern.get("confidence"),
+                    "analysis": layer5_result.get("analysis")
+                }
         
         return intents
     

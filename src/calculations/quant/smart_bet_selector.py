@@ -1,7 +1,5 @@
 from typing import List, Dict, Any
 
-from src.core.recommendation_schema import RecommendationSchemaAdapter
-
 class SmartBetSelector:
     """
     智能选票器。支持竞彩(固定赔率)、北单(65%返奖率)和传统足彩(无赔率概率优势)。
@@ -63,4 +61,27 @@ class SmartBetSelector:
 
     def extract_value_bets_schema(self, matches_data: List[Dict[str, Any]]) -> Dict[str, Any]:
         value_bets = self.extract_value_bets(matches_data)
-        return RecommendationSchemaAdapter.from_smart_bet_selector_output(value_bets).to_dict()
+        recommended_bets = [
+            {
+                "match_id": bet["match_id"],
+                "lottery_type": bet["lottery_type"],
+                "play_type": bet["market"],
+                "market": bet["market"],
+                "selection": bet["selection"],
+                "odds": bet.get("odds"),
+                "probability": bet["prob"],
+                "value_score": bet.get("probability_edge", bet.get("ev", 0.0)),
+                "confidence": None,
+                "handicap": None,
+                "metadata": {"desc": bet.get("desc", "")}
+            }
+            for bet in value_bets
+        ]
+        return {
+            "recommended_bets": recommended_bets,
+            "timestamp": "",
+            "strategy_name": "smart_bet_selector",
+            "overall_confidence": None,
+            "risk_level": None,
+            "metadata": {"count": len(value_bets)}
+        }

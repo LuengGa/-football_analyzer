@@ -74,21 +74,21 @@ class IntelligenceAggregator:
         social_task = asyncio.create_task(self.social_agent.gather(team_a, team_b))
 
         # 等待全部完成，return_exceptions 保证单个失败不阻塞整体
-        news_result, injuries_result, social_result = await asyncio.gather(
+        _results: tuple = await asyncio.gather(
             news_task, injuries_task, social_task,
             return_exceptions=True,
         )
+        news_result: Dict[str, Any] = _results[0] if not isinstance(_results[0], Exception) else {"error": str(_results[0]), "team_a_news": [], "team_b_news": [], "cross_news": []}
+        injuries_result: Dict[str, Any] = _results[1] if not isinstance(_results[1], Exception) else {"error": str(_results[1]), "team_a_injuries": [], "team_b_injuries": [], "key_players_out": []}
+        social_result: Dict[str, Any] = _results[2] if not isinstance(_results[2], Exception) else {"error": str(_results[2]), "team_a_sentiment": {}, "team_b_sentiment": {}, "overall_bias": "NEUTRAL"}
 
-        # 异常兜底 — 失败的 Agent 返回 error 占位，不影响其他 Agent 结果
-        if isinstance(news_result, Exception):
-            logger.error(f"NewsAgent 异常: {news_result}")
-            news_result = {"error": str(news_result), "team_a_news": [], "team_b_news": [], "cross_news": []}
-        if isinstance(injuries_result, Exception):
-            logger.error(f"InjuriesAgent 异常: {injuries_result}")
-            injuries_result = {"error": str(injuries_result), "team_a_injuries": [], "team_b_injuries": [], "key_players_out": []}
-        if isinstance(social_result, Exception):
-            logger.error(f"SocialAgent 异常: {social_result}")
-            social_result = {"error": str(social_result), "team_a_sentiment": {}, "team_b_sentiment": {}, "overall_bias": "NEUTRAL"}
+        # 异常日志
+        if isinstance(_results[0], Exception):
+            logger.error(f"NewsAgent 异常: {_results[0]}")
+        if isinstance(_results[1], Exception):
+            logger.error(f"InjuriesAgent 异常: {_results[1]}")
+        if isinstance(_results[2], Exception):
+            logger.error(f"SocialAgent 异常: {_results[2]}")
 
         return {
             "news": news_result,

@@ -81,7 +81,7 @@ class BacktestEngine:
         wins = 0
         losses = 0
         pushes = 0
-        detailed = []
+        detailed: list[dict[str, Any]] = []
         peak = 0.0
         max_dd = 0.0
         cumulative = 0.0

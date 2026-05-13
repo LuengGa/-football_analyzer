@@ -281,7 +281,7 @@ class AdaptiveLearningLoop:
 
     def _check_and_adjust_parameters(self) -> List[ParameterAdjustment]:
         """检查并调整参数"""
-        adjustments = []
+        adjustments: List[ParameterAdjustment] = []
         
         if len(self.bet_results) < 10:
             return adjustments

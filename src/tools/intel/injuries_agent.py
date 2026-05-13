@@ -8,6 +8,7 @@
 """
 import asyncio
 import logging
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -15,10 +16,10 @@ logger = logging.getLogger(__name__)
 class InjuriesAgent:
     """伤停情报 Agent"""
 
-    async def gather(self, team_a: str, team_b: str) -> dict:
+    async def gather(self, team_a: str, team_b: str) -> dict[str, Any]:
         """
         并发获取两队伤停信息
-        
+
         Returns:
             dict: {
                 "team_a_injuries": [...],
@@ -29,14 +30,14 @@ class InjuriesAgent:
         task_a = self._fetch_team_injuries(team_a)
         task_b = self._fetch_team_injuries(team_b)
 
-        inj_a, inj_b = await asyncio.gather(task_a, task_b, return_exceptions=True)
+        results = await asyncio.gather(task_a, task_b, return_exceptions=True)
+        inj_a: list[Any] = results[0] if not isinstance(results[0], Exception) else []  # type: ignore[assignment]
+        inj_b: list[Any] = results[1] if not isinstance(results[1], Exception) else []  # type: ignore[assignment]
 
-        if isinstance(inj_a, Exception):
-            logger.warning(f"伤停抓取异常 {team_a}: {inj_a}")
-            inj_a = []
-        if isinstance(inj_b, Exception):
-            logger.warning(f"伤停抓取异常 {team_b}: {inj_b}")
-            inj_b = []
+        if isinstance(results[0], Exception):
+            logger.warning(f"伤停抓取异常 {team_a}: {results[0]}")
+        if isinstance(results[1], Exception):
+            logger.warning(f"伤停抓取异常 {team_b}: {results[1]}")
 
         return {
             "team_a_injuries": inj_a,
@@ -44,17 +45,16 @@ class InjuriesAgent:
             "key_players_out": self._identify_key_absences(inj_a, inj_b),
         }
 
-    async def _fetch_team_injuries(self, team: str) -> list:
+    async def _fetch_team_injuries(self, team: str) -> list[Any]:
         """
         抓取单队伤停信息
-        
+
         数据源候选：
         - transfermarkt.com (injuries/suspensions API)
         - thephysioroom.com
         - 国内：雷速体育、懂球帝伤停接口
         """
         try:
-            # 骨架实现 — 实际应接真实伤停 API
             return [{
                 "team": team,
                 "injuries": [],
@@ -66,16 +66,15 @@ class InjuriesAgent:
             logger.warning(f"伤停抓取失败 {team}: {e}")
             return []
 
-    def _identify_key_absences(self, inj_a: list, inj_b: list) -> list:
+    def _identify_key_absences(self, inj_a: list[Any], inj_b: list[Any]) -> list[Any]:
         """
         识别关键球员缺阵
-        
+
         关键球员定义：
         - 首发阵容主力
         - xG 贡献 > 队内前 30%
         - 近 5 场进球/助攻者
-        
+
         返回的关键缺阵将直接传入 xG 调整器 (PlayerXgAdjuster)
         """
-        # TODO: 对接 PlayerXgAdjuster 的 key_player 判定逻辑
         return []

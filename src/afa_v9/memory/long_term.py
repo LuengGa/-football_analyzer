@@ -126,7 +126,7 @@ class LongTermMemory:
         return [item for item in self._memory.values() if tag in item.tags]
 
     def get_knowledge_summary(self) -> dict:
-        categories = {}
+        categories: dict[str, dict[str, Any]] = {}
         for item in self._memory.values():
             if item.category not in categories:
                 categories[item.category] = {"count": 0, "tags": set()}

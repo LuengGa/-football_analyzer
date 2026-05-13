@@ -1,6 +1,6 @@
 import os
 import requests
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, cast
 
 from src.tools.odds.multisource_fetcher import MultiSourceFetcher
 
@@ -25,7 +25,8 @@ class AnalyzerAPI:
         try:
             response = requests.get(f"{ANALYZER_API_URL}/health", timeout=2)
             response.raise_for_status()
-            ok = response.json().get("status") == "ok"
+            json_data = response.json()
+            ok = isinstance(json_data, dict) and json_data.get("status") == "ok"
             AnalyzerAPI._last_health_ok = ok
             return ok
         except Exception:
@@ -43,7 +44,7 @@ class AnalyzerAPI:
         try:
             response = requests.get(url, params=params, timeout=3)
             response.raise_for_status()
-            return response.json()
+            return dict(response.json())
         except Exception as e:
             raise RuntimeError(f"HTTP GET failed for {url}: {e}")
 
@@ -52,7 +53,7 @@ class AnalyzerAPI:
         try:
             response = requests.post(url, json=payload, timeout=3)
             response.raise_for_status()
-            return response.json()
+            return dict(response.json())
         except Exception as e:
             raise RuntimeError(f"HTTP POST failed for {url}: {e}")
     
@@ -66,7 +67,7 @@ class AnalyzerAPI:
         url = f"{ANALYZER_API_URL}/api/v1/data/team/{team_name}"
         params = {"league": league} if league else {}
         data = AnalyzerAPI._get(url, params=params) or {}
-        return data.get("stats", {})
+        return cast(Dict[str, Any], data.get("stats", {}))
 
     @staticmethod
     def get_league_stats(league_code: str) -> Dict[str, Any]:
@@ -77,10 +78,10 @@ class AnalyzerAPI:
             return {}
         url = f"{ANALYZER_API_URL}/api/v1/data/league/{league_code}"
         data = AnalyzerAPI._get(url) or {}
-        return data.get("stats", {})
+        return cast(Dict[str, Any], data.get("stats", {}))
 
     @staticmethod
-    def get_recent_matches(team_name: str, limit: int = 10) -> List[Dict]:
+    def get_recent_matches(team_name: str, limit: int = 10) -> List[Dict[str, Any]]:
         """获取球队近期比赛"""
         if not team_name:
             return []
@@ -88,7 +89,7 @@ class AnalyzerAPI:
             return []
         url = f"{ANALYZER_API_URL}/api/v1/data/recent-matches/{team_name}"
         data = AnalyzerAPI._get(url, params={"n": limit}) or {}
-        return data.get("recent_matches", [])
+        return cast(List[Dict[str, Any]], data.get("recent_matches", []))
 
     @staticmethod
     def calculate_ev(odds: float, actual_probability: float) -> Dict[str, Any]:
@@ -100,10 +101,10 @@ class AnalyzerAPI:
             "odds": odds,
             "actual_probability": actual_probability
         }
-        return AnalyzerAPI._post(url, payload) or {}
+        return cast(Dict[str, Any], AnalyzerAPI._post(url, payload) or {})
 
     @staticmethod
-    def search_knowledge(query: str) -> List[Dict]:
+    def search_knowledge(query: str) -> List[Dict[str, Any]]:
         """在 22万场历史 RAG 库中搜索"""
         if not query:
             return []
@@ -111,38 +112,40 @@ class AnalyzerAPI:
             return []
         url = f"{ANALYZER_API_URL}/api/v1/data/search"
         data = AnalyzerAPI._get(url, params={"query": query}) or {}
-        return data.get("results", [])
+        return cast(List[Dict[str, Any]], data.get("results", []))
 
     @staticmethod
-    def get_live_news(team_name: str, limit: int = 5) -> List[Dict]:
+    def get_live_news(team_name: str, limit: int = 5) -> List[Dict[str, Any]]:
         """获取球队实时新闻"""
         res = AnalyzerAPI.get_live_news_protocol(team_name=team_name, limit=limit)
         if res.get("ok"):
             data = res.get("data")
             if isinstance(data, dict):
-                return data.get("articles", [])
+                return cast(List[Dict[str, Any]], data.get("articles", []))
             if isinstance(data, list):
-                return data
+                return cast(List[Dict[str, Any]], data)
         return []
 
     @staticmethod
-    def get_live_injuries(team_name: str) -> List[Dict]:
+    def get_live_injuries(team_name: str) -> List[Dict[str, Any]]:
         """获取球队实时伤停情报"""
         res = AnalyzerAPI.get_live_injuries_protocol(team_name=team_name)
         if res.get("ok"):
             data = res.get("data")
             if isinstance(data, dict):
-                return data.get("injuries", [])
+                return cast(List[Dict[str, Any]], data.get("injuries", []))
             if isinstance(data, list):
-                return data
+                return cast(List[Dict[str, Any]], data)
         return []
 
     @staticmethod
-    def get_live_fixtures() -> List[Dict]:
+    def get_live_fixtures() -> List[Dict[str, Any]]:
         """获取今日赛事列表"""
         res = AnalyzerAPI.get_live_fixtures_protocol()
         if res.get("ok"):
-            return res.get("data", {}).get("fixtures", [])
+            data = res.get("data")
+            if isinstance(data, dict):
+                return cast(List[Dict[str, Any]], data.get("fixtures", []))
         return []
 
     @staticmethod
@@ -191,11 +194,13 @@ class AnalyzerAPI:
             return fetcher.fetch_fixtures_sync()
 
     @staticmethod
-    def get_live_odds(home_team: str, away_team: str) -> Dict:
+    def get_live_odds(home_team: str, away_team: str) -> Dict[str, Any]:
         """获取实时盘口与水位变动数据"""
         res = AnalyzerAPI.get_live_odds_protocol(home_team=home_team, away_team=away_team)
         if res.get("ok"):
-            return res.get("data") or {}
+            data = res.get("data")
+            if isinstance(data, dict):
+                return data
         return {}
 
     @staticmethod

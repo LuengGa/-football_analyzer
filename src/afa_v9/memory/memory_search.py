@@ -35,13 +35,14 @@ class MemoryRecord:
     metadata: Dict[str, Any]
     score: float = 0.0
     ai_insight: str = ""
-    related_memories: List[str] = None
+    related_memories: List[str] = None  # type: ignore[assignment]
 
 
 class MemorySearch:
     """完全AI原生的记忆搜索系统 (L5级)"""
-    _instance = None
+    _instance: Optional["MemorySearch"] = None
     _lock = threading.Lock()
+    _initialized: bool = False
 
     def __new__(cls, db_path: Optional[str] = None):
         if cls._instance is None:
@@ -73,7 +74,7 @@ class MemorySearch:
             self._conn.execute("PRAGMA journal_mode=WAL")
             self._conn.execute("PRAGMA synchronous=NORMAL")
 
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS memory_records (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -112,7 +113,7 @@ class MemorySearch:
             ai_insight = self._generate_ai_insight(content, category, tags)
             related = self._find_related_memories(content, category, tags)
 
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute("""
                 INSERT OR REPLACE INTO memory_records
                 (key, raw_content, content_lower, category, tags, importance, created_at,
@@ -159,7 +160,7 @@ class MemorySearch:
         related = []
         content_terms = set(content.lower().split())
 
-        cursor = self._conn.cursor()
+        cursor = self._conn.cursor()  # type: ignore[union-attr]
         cursor.execute("SELECT key, content_lower, category, tags FROM memory_records LIMIT 100")
         rows = cursor.fetchall()
 
@@ -202,7 +203,7 @@ class MemorySearch:
             query_lower = query.lower()
             query_terms = set(query_lower.split())
 
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
 
             if category:
                 cursor.execute("""
@@ -218,7 +219,7 @@ class MemorySearch:
                 """)
 
             rows = cursor.fetchall()
-            results = []
+            results: List[MemoryRecord] = []
 
             for row in rows:
                 id_, key, content, cat, tags_json, importance, created_at, metadata_json, ai_insight, related_json = row
@@ -340,6 +341,61 @@ class MemorySearch:
         """按分类搜索记忆"""
         return self.semantic_search("", limit, category)
 
+    def get_stats(self) -> Dict[str, Any]:
+        """获取搜索统计"""
+        try:
+            if self._conn is None:
+                return {"total": 0, "by_category": {}}
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
+            cursor.execute("SELECT COUNT(*) FROM memory_records")
+            total = cursor.fetchone()[0] if cursor.fetchone else 0
+            cursor.execute("SELECT category, COUNT(*) FROM memory_records GROUP BY category")
+            by_category = dict(cursor.fetchall())
+            return {"total": total, "by_category": by_category}
+        except Exception:
+            return {"total": 0, "by_category": {}}
+
+    def get_recent(self, category: Optional[str] = None, limit: int = 20) -> List[MemoryRecord]:
+        """获取最近的记忆"""
+        try:
+            if self._conn is None:
+                return []
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
+            if category:
+                cursor.execute("""
+                    SELECT id, key, raw_content, category, tags, importance,
+                           created_at, metadata, ai_insight, related_memories
+                    FROM memory_records WHERE category = ?
+                    ORDER BY created_at DESC LIMIT ?
+                """, (category, limit))
+            else:
+                cursor.execute("""
+                    SELECT id, key, raw_content, category, tags, importance,
+                           created_at, metadata, ai_insight, related_memories
+                    FROM memory_records ORDER BY created_at DESC LIMIT ?
+                """, (limit,))
+            rows = cursor.fetchall()
+            results: List[MemoryRecord] = []
+            for row in rows:
+                id_, key, content, cat, tags_json, importance, created_at, metadata_json, ai_insight, related_json = row
+                try:
+                    tags = json.loads(tags_json)
+                    metadata = json.loads(metadata_json)
+                    related = json.loads(related_json)
+                except:
+                    tags = []
+                    metadata = {}
+                    related = []
+                results.append(MemoryRecord(
+                    id=id_, key=key, content=content, category=cat,
+                    tags=tags, importance=importance, created_at=created_at,
+                    metadata=metadata, ai_insight=ai_insight, related_memories=related
+                ))
+            return results
+        except Exception as e:
+            logger.error(f"获取最近记忆失败: {e}")
+            return []
+
     def delete_memory(self, key: str) -> bool:
         """删除记忆"""
         try:
@@ -362,7 +418,7 @@ class MemorySearch:
     def get_all_memories(self, limit: int = 100) -> List[MemoryRecord]:
         """获取所有记忆"""
         try:
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute("""
                 SELECT id, key, raw_content, category, tags, importance,
                        created_at, metadata, ai_insight, related_memories
@@ -370,7 +426,7 @@ class MemorySearch:
             """, (limit,))
             rows = cursor.fetchall()
 
-            results = []
+            results: List[MemoryRecord] = []
             for row in rows:
                 id_, key, content, cat, tags_json, importance, created_at, metadata_json, ai_insight, related_json = row
                 try:

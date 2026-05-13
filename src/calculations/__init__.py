@@ -12,6 +12,14 @@
 - settlement/    : 结算引擎
 """
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .quant.six_layer_analyzer import EnhancedSixLayerAnalyzer as SixLayerAnalyzerV1
+    from .quant.enhanced_six_layer import EnhancedSixLayerAnalyzer as SixLayerAnalyzerV2
+    from .history.historical_data_manager import HistoricalDataManager as HistDataManager
+    from .lottery.game_type_manager import GameTypeManager as GameTypeMgr
+
 # 优先导入彩票官方规则 (单一真实来源)
 try:
     from .lottery import (

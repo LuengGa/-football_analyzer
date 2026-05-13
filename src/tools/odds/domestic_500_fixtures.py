@@ -6,7 +6,7 @@ from datetime import datetime
 from html.parser import HTMLParser
 from typing import List, Optional
 
-import requests
+import requests  # type: ignore
 
 
 _DEFAULT_HEADERS = {
@@ -29,9 +29,10 @@ def fetch_500_trade_html(*, date: Optional[str] = None, timeout_s: float = 3.0) 
         return None
     if resp.status_code != 200:
         return None
-    if not resp.text or len(resp.text) < 200:
+    text: Optional[str] = resp.text
+    if not text or len(text) < 200:
         return None
-    return resp.text
+    return text
 
 
 @dataclass

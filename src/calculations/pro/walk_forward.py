@@ -14,7 +14,7 @@ from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from .poisson_model import PoissonGoalModel
+from .poisson_model import EnhancedPoissonGoalModel
 from .strategy_backtest import StrategyTester, StrategyResult
 
 
@@ -105,7 +105,7 @@ class WalkForwardValidator:
                 
                 for league, matches_list in league_matches.items():
                     if len(matches_list) >= 50:
-                        model = PoissonGoalModel()
+                        model = EnhancedPoissonGoalModel()
                         model.fit(matches_list)
                         league_models[league] = model
                 
@@ -121,7 +121,7 @@ class WalkForwardValidator:
                         all_results.append(result)
             else:
                 # 全局模型
-                model = PoissonGoalModel()
+                model = EnhancedPoissonGoalModel()
                 model.fit(train_matches)
                 
                 # 测试
@@ -178,9 +178,9 @@ class LeagueSpecificTrainer:
     """联赛特定模型训练器"""
     
     def __init__(self):
-        self.league_models: Dict[str, PoissonGoalModel] = {}
+        self.league_models: Dict[str, EnhancedPoissonGoalModel] = {}
         
-    def train_all_leagues(self, matches: List, min_matches: int = 100) -> Dict[str, PoissonGoalModel]:
+    def train_all_leagues(self, matches: List, min_matches: int = 100) -> Dict[str, EnhancedPoissonGoalModel]:
         """训练所有联赛的特定模型"""
         from collections import defaultdict
         
@@ -194,7 +194,7 @@ class LeagueSpecificTrainer:
         for league, matches_list in league_matches.items():
             if len(matches_list) >= min_matches:
                 print(f"  Training: {league} ({len(matches_list)} matches)")
-                model = PoissonGoalModel()
+                model = EnhancedPoissonGoalModel()
                 model.fit(matches_list)
                 self.league_models[league] = model
                 
@@ -202,6 +202,6 @@ class LeagueSpecificTrainer:
         
         return self.league_models
         
-    def get_model(self, league: str) -> Optional[PoissonGoalModel]:
+    def get_model(self, league: str) -> Optional[EnhancedPoissonGoalModel]:
         """获取特定联赛的模型"""
         return self.league_models.get(league)

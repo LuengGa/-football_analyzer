@@ -2,15 +2,21 @@
 OddsConverter - 赔率转换器（修正版）
 基于官方权威资料实现赔率转换
 """
-from typing import Dict, Any, List, Optional
-import numpy as np
+from typing import Dict, Any, List, Optional, TypedDict
+
+
+class HandicapMapping(TypedDict):
+    min_odds: float
+    max_odds: float
+    handicap: float
+    win_rate: str
 
 
 class OddsConverter:
     """赔率转换器 - 基于权威资料的正确实现"""
     
     # 欧赔区间 → 亚盘盘口 对应表（权威资料）
-    ODDS_TO_HANDICAP_MAP = [
+    ODDS_TO_HANDICAP_MAP: List[HandicapMapping] = [
         {"min_odds": 1.15, "max_odds": 1.25, "handicap": 1.5, "win_rate": "66%+"},
         {"min_odds": 1.25, "max_odds": 1.35, "handicap": 1.5, "win_rate": "66%+"},
         {"min_odds": 1.35, "max_odds": 1.45, "handicap": 1.25, "win_rate": "61%-66%"},
@@ -137,7 +143,7 @@ class OddsConverter:
         return {
             "上盘水位": round(home_water, 3),
             "下盘水位": round(away_water, 3),
-            "返还率": f"{return_rate*100}%"
+            "返还率": f"{return_rate*100}%"  # type: ignore[dict-item]
         }
     
     def jingcai_to_european(self, jingcai_odds: float) -> float:
@@ -197,34 +203,34 @@ class ValueAnalyzer:
         handicap: float = 0.0
     ) -> Dict[str, Any]:
         """价值分析"""
-        results = {
+        results: Dict[str, Any] = {
             "has_value": False,
-            "opportunities": [],
-            "conversions": {}
+            "opportunities": [],  # type: ignore[list-item]
+            "conversions": {},  # type: ignore[dict-item]
         }
         
         # 转换为欧赔比较
-        normalized = {}
+        normalized: Dict[str, float] = {}
         
         if eu_odds:
             normalized["欧赔"] = eu_odds
             
             # 获取对应的理论盘口
             theoretical_handicap = self.converter.get_asian_handicap_from_odds(eu_odds)
-            results["conversions"]["理论盘口"] = theoretical_handicap["description"]
+            results["conversions"]["理论盘口"] = theoretical_handicap["description"]  # type: ignore[index]
         
         if jingcai_odds:
             eu_from_jc = self.converter.jingcai_to_european(jingcai_odds)
             normalized["竞彩转欧赔"] = eu_from_jc
-            results["conversions"]["竞彩→欧赔"] = eu_from_jc
+            results["conversions"]["竞彩→欧赔"] = eu_from_jc  # type: ignore[index]
             
             if eu_odds:
                 diff = eu_from_jc - eu_odds
                 pct = (diff / eu_odds) * 100
-                results["conversions"]["差异"] = f"{pct:+.2f}%"
+                results["conversions"]["差异"] = f"{pct:+.2f}%"  # type: ignore[index]
                 
                 if abs(pct) > 5:
-                    results["opportunities"].append({
+                    results["opportunities"].append({  # type: ignore[union-attr]
                         "type": "竞彩vs欧赔",
                         "diff": f"{pct:+.2f}%",
                         "potential": "高" if abs(pct) > 10 else "中"
@@ -233,15 +239,15 @@ class ValueAnalyzer:
         if beidan_sp:
             eu_from_bd = self.converter.beidan_to_european(beidan_sp)
             normalized["北单转欧赔"] = eu_from_bd
-            results["conversions"]["北单→欧赔"] = eu_from_bd
+            results["conversions"]["北单→欧赔"] = eu_from_bd  # type: ignore[index]
             
             if eu_odds:
                 diff = eu_from_bd - eu_odds
                 pct = (diff / eu_odds) * 100
-                results["conversions"]["北单差异"] = f"{pct:+.2f}%"
+                results["conversions"]["北单差异"] = f"{pct:+.2f}%"  # type: ignore[index]
                 
                 if abs(pct) > 5:
-                    results["opportunities"].append({
+                    results["opportunities"].append({  # type: ignore[union-attr]
                         "type": "北单vs欧赔",
                         "diff": f"{pct:+.2f}%",
                         "potential": "高" if abs(pct) > 10 else "中"

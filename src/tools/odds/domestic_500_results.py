@@ -7,7 +7,7 @@ from datetime import datetime
 from html.parser import HTMLParser
 from typing import Any, Dict, List, Optional, Tuple
 
-import requests
+import requests  # type: ignore
 
 
 _DEFAULT_HEADERS = {

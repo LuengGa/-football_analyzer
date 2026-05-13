@@ -13,7 +13,7 @@ AFA v9.0 Agent集群 - 数字生命体集群
 每个Agent = Soul + Brain + LLM + 历史数据查询能力
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional, cast
 from .base import Agent, AgentSoul, AgentBrain
 from .historical_mixin import HistoricalAgentMixin
 
@@ -22,14 +22,14 @@ try:
         LOTTERY_KNOWLEDGE,
         LotteryRouter
     )
-    LOTTERY_CONFIG = {
+    LOTTERY_CONFIG: dict[str, dict[str, Any]] = {
         "JINGCAI": LOTTERY_KNOWLEDGE.get_lottery('JINGCAI'),
         "BEIDAN": LOTTERY_KNOWLEDGE.get_lottery('BEIDAN'),
     }
-    LOTTERY_ROUTER = LotteryRouter()
+    LOTTERY_ROUTER: LotteryRouter = LotteryRouter()
 except ImportError:
-    LOTTERY_ROUTER = None
-    LOTTERY_CONFIG = None
+    LOTTERY_ROUTER = None  # type: ignore[assignment]
+    LOTTERY_CONFIG = None  # type: ignore[assignment]
 
 
 class ScoutAgent(Agent, HistoricalAgentMixin):
@@ -67,7 +67,7 @@ class ScoutAgent(Agent, HistoricalAgentMixin):
             "current_intel": self._gather_current_intel(home_team, away_team, league),
         }
 
-        historical_context = {}
+        historical_context: Dict[str, Any] = {}
         if self._historical_initialized and self._query_service:
             historical_context = self.get_match_context(home_team, away_team, league)
             scout_report["historical_data"] = historical_context
@@ -217,7 +217,7 @@ class QuantAgent(Agent, HistoricalAgentMixin):
                 }
 
         self._record_execution(state, quant_report)
-        print(f"   -> ✅ [{self.soul.name}] 量化分析完成 (基于{quant_report['historical_analysis'].get('match_count', 0)}场比赛数据)")
+        print(f"   -> ✅ [{self.soul.name}] 量化分析完成 (基于{quant_report['historical_analysis'].get('match_count', 0) if isinstance(quant_report['historical_analysis'], dict) else 0}场比赛数据)")
 
         return {
             "quant_report": quant_report,
@@ -310,20 +310,20 @@ class MarketAgent(Agent, HistoricalAgentMixin):
         home_team = state.get("home_team", "")
         away_team = state.get("away_team", "")
 
-        market_report = {
+        market_report: Dict[str, Any] = {
             "odds": {
                 "home_win": 2.0,
                 "draw": 3.2,
                 "away_win": 3.5,
             },
             "market_sentiment": "neutral",
-            "value_opportunities": [],
+            "value_opportunities": cast(List[Dict[str, Any]], []),
             "historical_comparison": {},
         }
 
         if self._historical_initialized and self._query_service and league:
             odds_stats = self._query_service.get_odds_statistics(league)
-            league_matches = self._query_service.query_league_matches(league, limit=100)
+            league_matches: List[Dict[str, Any]] = self._query_service.query_league_matches(league, limit=100)
 
             if odds_stats and odds_stats.get("count", 0) > 0:
                 market_report["odds"] = self._calculate_fair_odds(league, odds_stats)
@@ -333,7 +333,7 @@ class MarketAgent(Agent, HistoricalAgentMixin):
                 }
 
             if home_team and away_team:
-                value_opps = self._find_value_opportunities(
+                value_opps: List[Dict[str, Any]] = self._find_value_opportunities(
                     home_team, away_team, league, league_matches
                 )
                 market_report["value_opportunities"] = value_opps
@@ -372,7 +372,7 @@ class MarketAgent(Agent, HistoricalAgentMixin):
         league: str, matches: List[Dict]
     ) -> List[Dict]:
         """发现价值机会"""
-        opps = []
+        opps: List[Dict[str, Any]] = []
 
         if not matches:
             return opps
@@ -726,7 +726,7 @@ ALL_AGENTS = [
 ]
 
 
-def get_agent_by_name(name: str) -> Agent:
+def get_agent_by_name(name: str) -> Optional[Agent]:
     """根据名称获取Agent"""
     for agent in ALL_AGENTS:
         if agent.soul.name.lower() == name.lower():

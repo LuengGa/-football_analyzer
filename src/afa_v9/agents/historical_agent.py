@@ -155,14 +155,17 @@ class HistoricalAnalystAgent(Agent, HistoricalAgentMixin):
         team_stats = self.get_team_stats(team_name)
         recent_matches = self.query_team_history(team_name, limit=10)
 
-        home_stats = self.query_team_history(team_name, limit=50, home_only=True)
-        away_stats = self.query_team_history(team_name, limit=50, away_only=True)
+        home_history = self.query_team_history(team_name, limit=50, home_only=True)
+        away_history = self.query_team_history(team_name, limit=50, away_only=True)
+
+        home_form_data = home_history.get("recent_matches", []) if isinstance(home_history, dict) else []
+        away_form_data = away_history.get("recent_matches", []) if isinstance(away_history, dict) else []
 
         return {
             "team": team_name,
             "overview": team_stats,
-            "home_form": self._analyze_form(home_stats),
-            "away_form": self._analyze_form(away_stats),
+            "home_form": self._analyze_form(home_form_data),
+            "away_form": self._analyze_form(away_form_data),
             "recent_matches": recent_matches
         }
 
@@ -183,10 +186,11 @@ class HistoricalAnalystAgent(Agent, HistoricalAgentMixin):
         matches_a = self.query_team_history(team_a, limit=20)
         matches_b = self.query_team_history(team_b, limit=20)
 
+        matches_a_data = matches_a.get("recent_matches", []) if isinstance(matches_a, dict) else []
         h2h = [
-            m for m in matches_a
-            if m.get("home_team") in [team_a, team_b]
-            and m.get("away_team") in [team_a, team_b]
+            m for m in matches_a_data
+            if (isinstance(m, dict) and m.get("home_team") in [team_a, team_b]
+                and m.get("away_team") in [team_a, team_b])
         ]
 
         return {
@@ -332,7 +336,7 @@ class LeagueExpertAgent(Agent, HistoricalAgentMixin):
         year = state.get("year")
         analysis_type = state.get("type", "full")
 
-        result = {
+        result: Dict[str, Any] = {
             "agent": self.soul.name,
             "league": self.league_code,
             "league_name": self.league_name

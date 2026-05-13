@@ -78,7 +78,7 @@ class RulesDrivenDecider:
         results = self.semantic_memory.query(query, top_k=5)
 
         logger.info(f"检索到 {len(results)} 条相关规则")
-        return results
+        return results  # type: ignore[return-value]
 
     def _build_rule_query(self, context: RuleContext) -> str:
         """构建规则查询"""

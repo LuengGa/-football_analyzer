@@ -7,7 +7,7 @@ AI动态权重调整、自动模式识别、智能洞察生成
 完全AI原生六层分析系统
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, TYPE_CHECKING
 from datetime import datetime
 import numpy as np
 from dataclasses import dataclass
@@ -44,8 +44,8 @@ class OddsData:
     home: float
     draw: float
     away: float
-    timestamp: datetime = None
-    source: str = None
+    timestamp: Optional[datetime] = None
+    source: Optional[str] = None
 
 
 @dataclass
@@ -54,7 +54,7 @@ class AsianHandicap:
     handicap: float  # -0.5, 0, 0.5, 1.0 etc.
     home_odds: float
     away_odds: float
-    timestamp: datetime = None
+    timestamp: Optional[datetime] = None
 
 
 @dataclass
@@ -254,4 +254,55 @@ class EnhancedSixLayerAnalyzer:
 
 
 SIX_LAYER_ANALYZER = EnhancedSixLayerAnalyzer()
+
+
+def get_six_layer_analyzer() -> EnhancedSixLayerAnalyzer:
+    return SIX_LAYER_ANALYZER
+
+
+@dataclass
+class Layer6ValueOpportunityEngine:
+    """Layer 6: 价值机会发现引擎"""
+
+    def set_data(
+        self,
+        bookmaker_data: List[Dict[str, Any]] = None,
+        european_odds: Dict[str, float] = None,
+        asian_handicap: Any = None,
+        odds_history: List[Dict[str, Any]] = None,
+    ) -> None:
+        self.bookmaker_data = bookmaker_data or []
+        self.european_odds = european_odds or {"home": 2.0, "draw": 3.5, "away": 3.5}
+        self.asian_handicap = asian_handicap
+        self.odds_history = odds_history or []
+
+    def analyze(self) -> Dict[str, Any]:
+        """分析价值机会"""
+        opportunities: list[MarketOpportunity] = []
+
+        if self.european_odds:
+            home_odds = self.european_odds.get("home", 2.0)
+            draw_odds = self.european_odds.get("draw", 3.5)
+            away_odds = self.european_odds.get("away", 3.5)
+
+            implied_prob = 1/home_odds + 1/draw_odds + 1/away_odds
+            if implied_prob < 1.05:
+                opportunities.append(
+                    MarketOpportunity(
+                        type="low_vig",
+                        direction="home",
+                        confidence=0.7,
+                        expected_value=1.05 - implied_prob,
+                        recommendation="低抽水机会"
+                    )
+                )
+
+        return {
+            "layer6": {
+                "opportunities": opportunities,
+                "overall_confidence": 0.5 if opportunities else 0.3,
+                "recommendation": opportunities[0].recommendation if opportunities else "无明确建议"
+            },
+            "layer5": {"primary_pattern": None, "analysis": ""}
+        }
 
