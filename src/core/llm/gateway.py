@@ -156,7 +156,7 @@ class LLMGateway:
                 response = client.chat.completions.create(
                     model=model, messages=messages, **kwargs
                 )
-                return response.choices[0].message.content
+                return str(response.choices[0].message.content)  # type: ignore[no-any-return]
             except Exception as e:
                 logger.warning(f"Provider {provider.value} failed: {e}")
                 continue
@@ -217,7 +217,7 @@ class LLMGateway:
             response = await async_client.chat.completions.create(
                 model=model, messages=messages, **kwargs
             )
-            return response.choices[0].message.content
+            return str(response.choices[0].message.content)  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"Async LLM call failed: {e}")
             return self._fallback_generate(prompt, task_type)

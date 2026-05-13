@@ -85,7 +85,7 @@ class ExperienceLoop:
         }
         """
         target_date = target_date or date.today().isoformat()
-        result = {
+        result: Dict[str, Any] = {
             "date": target_date,
             "results_fetched": 0,
             "predictions_matched": 0,
@@ -354,7 +354,7 @@ class ExperienceLoop:
                 result=result,
                 match_id=match_id,
                 date_str=date_str,
-            )
+            )  # type: ignore[no-any-return]
         except Exception as e:
             logger.warning(f"[ExpLoop] 单场 ELO 更新失败: {e}")
             return None

@@ -124,7 +124,7 @@ class LotteryQuery:
     def get_allowed_handicaps(self, lottery_type: str) -> List[str]:
         """获取允许的让球类型"""
         lottery = self.knowledge.get_lottery(lottery_type)
-        return lottery.get("handicap_type_detail", "")
+        return lottery.get("handicap_type_detail", [])  # type: ignore[return-value,no-any-return]
 
     def compare_lotteries(self) -> Dict[str, Any]:
         """对比两种彩种"""

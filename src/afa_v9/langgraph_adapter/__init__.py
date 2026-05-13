@@ -51,22 +51,22 @@ class LangGraphAdapter:
         def scout_wrapper(state: Dict) -> Dict:
             state = self.inject_soul_context(state)
             state = self.inject_memory_context(state)
-            return self._agents["scout"].execute(state)  # type: ignore[return-value]
+            return self._agents["scout"].execute(state)  # type: ignore[return-value,no-any-return]
 
         def quant_wrapper(state: Dict) -> Dict:
-            return self._agents["quant"].execute(state)  # type: ignore[return-value]
+            return self._agents["quant"].execute(state)  # type: ignore[return-value,no-any-return]
 
         def market_wrapper(state: Dict) -> Dict:
-            return self._agents["market"].execute(state)  # type: ignore[return-value]
+            return self._agents["market"].execute(state)  # type: ignore[return-value,no-any-return]
 
         def risk_wrapper(state: Dict) -> Dict:
-            return self._agents["risk"].execute(state)  # type: ignore[return-value]
+            return self._agents["risk"].execute(state)  # type: ignore[return-value,no-any-return]
 
         def trader_wrapper(state: Dict) -> Dict:
-            return self._agents["trader"].execute(state)  # type: ignore[return-value]
+            return self._agents["trader"].execute(state)  # type: ignore[return-value,no-any-return]
 
         def auditor_wrapper(state: Dict) -> Dict:
-            return self._agents["auditor"].execute(state)  # type: ignore[return-value]
+            return self._agents["auditor"].execute(state)  # type: ignore[return-value,no-any-return]
         
         self.graph.add_node("scout", scout_wrapper)
         self.graph.add_node("quant", quant_wrapper)

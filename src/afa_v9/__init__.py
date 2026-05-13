@@ -108,7 +108,7 @@ class AFAV9:
         )
 
         print(f"\n📊 分析完成!")
-        return result
+        return result  # type: ignore[no-any-return]
 
     def process(self, task: dict, thread_id: str = "default") -> dict:
         """通用任务处理"""
@@ -138,7 +138,7 @@ class AFAV9:
             tags=[task.get("type", "unknown")],
         )
 
-        return result
+        return result  # type: ignore[no-any-return]
 
     def evolve(self) -> dict:
         """触发自我进化"""
@@ -148,11 +148,12 @@ class AFAV9:
         """获取所有智能体状态"""
         result: dict[str, Any] = {}
         for agent in ALL_AGENTS:
-            result[agent.name] = {  # type: ignore[index]
-                "role": getattr(agent, "role", str(agent)),  # type: ignore[arg-type,attr-defined]
-                "description": getattr(agent, "description", ""),  # type: ignore[attr-defined]
-                "execution_count": getattr(agent, "execution_count", 0),  # type: ignore[attr-defined]
-                "last_executed": getattr(agent, "last_executed", None),  # type: ignore[attr-defined]
+            agent_name = getattr(agent, "name", str(agent))  # type: ignore[attr-defined]
+            result[agent_name] = {
+                "role": getattr(agent, "role", str(agent)),
+                "description": getattr(agent, "description", ""),
+                "execution_count": getattr(agent, "execution_count", 0),
+                "last_executed": getattr(agent, "last_executed", None),
             }
         return result
 

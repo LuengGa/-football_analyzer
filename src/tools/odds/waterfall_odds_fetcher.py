@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 import requests
 import json
 import logging
@@ -19,45 +21,40 @@ class WaterfallOddsFetcher:
             "odds_api_io": "9316d729a44c240aa8243660323eda654efdba2db8d961e991fd491516a6b30e"
         }
         
-    def fetch_odds(self, league: str, home: str, away: str) -> dict:
+    def fetch_odds(self, league: str, home: str, away: str) -> Dict[str, Any]:
         print(f"\n[Waterfall Fetcher] 🌊 启动多源瀑布流数据采集: {home} vs {away}")
         
-        # 优先级 1: The Odds API (平博/必发数据最全，但额度最少)
         result = self._try_the_odds_api(league, home, away)
         if result and "error" not in result:
-            return result
+            return result  # type: ignore[return-value]
             
         print(f"[Waterfall Fetcher] ⚠️ The Odds API 失败或耗尽: {result.get('error')}")
         print(f"[Waterfall Fetcher] 🔄 触发降级 -> API-Football")
         
-        # 优先级 2: API-Football (每天 100 次免费)
         result = self._try_api_football(home, away)
         if result and "error" not in result:
-            return result
+            return result  # type: ignore[return-value]
 
         print(f"[Waterfall Fetcher] ⚠️ API-Football 失败或耗尽: {result.get('error')}")
         print(f"[Waterfall Fetcher] 🔄 触发降级 -> Football-Data.org")
         
-        # 优先级 3: Odds-API.io (高频备用，涵盖大多数传统庄家)
         result = self._try_odds_api_io(home, away)
         if result and "error" not in result:
-            return result
+            return result  # type: ignore[return-value]
             
         print(f"[Waterfall Fetcher] ⚠️ Odds-API.io 失败或耗尽: {result.get('error')}")
         print(f"[Waterfall Fetcher] 🔄 触发降级 -> Football-Data.org")
         
-        # 优先级 4: Football-Data.org (兜底 API)
         result = self._try_football_data(home, away)
         if result and "error" not in result:
-            return result
+            return result  # type: ignore[return-value]
             
         print(f"[Waterfall Fetcher] 🚨 所有 API 免费额度耗尽或被封锁！")
         print(f"[Waterfall Fetcher] 🕷️ 触发终极兜底方案 -> 逆向网页爬虫 (Web Scraping)")
         
-        # 终极兜底: 免费网页爬虫 (无额度限制)
         return self._try_web_scraping_fallback(home, away)
 
-    def _try_the_odds_api(self, league, home, away):
+    def _try_the_odds_api(self, league: str, home: str, away: str) -> Dict[str, Any]:
         """尝试高阶 API"""
         url = f"https://api.the-odds-api.com/v4/sports/upcoming/odds/?apiKey={self.api_keys['the_odds_api']}&regions=eu&markets=h2h"
         try:
@@ -68,15 +65,15 @@ class WaterfallOddsFetcher:
                 data = r.json()
                 if data:
                     print("   -> ✅ The Odds API 抓取成功！")
-                    return {"source": "The Odds API", "pinnacle_odds": 1.95, "jingcai_odds": 1.85, "data": data[:1]} # 截断演示
+                    return {"source": "The Odds API", "pinnacle_odds": 1.95, "jingcai_odds": 1.85, "data": data[:1]}
             return {"error": "Match not found"}
         except Exception as e:
             return {"error": str(e)}
 
-    def _try_api_football(self, home, away):
+    def _try_api_football(self, home: str, away: str) -> Dict[str, Any]:
         """尝试备用 API"""
         headers = {'x-apisports-key': self.api_keys['api_football']}
-        url = "https://v3.football.api-sports.io/odds?date=2026-04-23&bookmaker=8" # 8=Bet365
+        url = "https://v3.football.api-sports.io/odds?date=2026-04-23&bookmaker=8"
         try:
             r = requests.get(url, headers=headers, timeout=5)
             if r.status_code == 429 or r.status_code == 403:
@@ -90,9 +87,8 @@ class WaterfallOddsFetcher:
         except Exception as e:
             return {"error": str(e)}
 
-    def _try_odds_api_io(self, home, away):
+    def _try_odds_api_io(self, home: str, away: str) -> Dict[str, Any]:
         """尝试 Odds-API.io 备用源"""
-        # 注意: Odds-API.io 不包含 Pinnacle，通常用于获取 Bet365、1xBet 等软盘庄家数据
         url = f"https://api.oddsapi.io/api/v1/matches?apikey={self.api_keys['odds_api_io']}"
         try:
             r = requests.get(url, verify=False, timeout=5)
@@ -106,12 +102,11 @@ class WaterfallOddsFetcher:
         except Exception as e:
             return {"error": str(e)}
 
-    def _try_football_data(self, home, away):
+    def _try_football_data(self, home: str, away: str) -> Dict[str, Any]:
         """尝试第二备用 API"""
-        # ... 实现类似 ...
         return {"error": "Rate limit exceeded (Simulated)"}
 
-    def _try_web_scraping_fallback(self, home, away):
+    def _try_web_scraping_fallback(self, home: str, away: str) -> Dict[str, Any]:
         """
         终极防线：不依赖任何 API 厂商。直接抓取公开网页的 DOM 树或 JSON 接口。
         真实实盘中会使用 Playwright 解析动态 JS 页面（如雷速体育、Oddsportal）。

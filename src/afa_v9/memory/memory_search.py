@@ -399,9 +399,9 @@ class MemorySearch:
     def delete_memory(self, key: str) -> bool:
         """删除记忆"""
         try:
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute("DELETE FROM memory_records WHERE key = ?", (key,))
-            self._conn.commit()
+            self._conn.commit()  # type: ignore[union-attr]
 
             if key in self._relation_graph:
                 del self._relation_graph[key]

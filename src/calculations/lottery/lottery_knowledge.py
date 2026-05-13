@@ -317,7 +317,7 @@ class LotteryKnowledge:
         lottery_type = lottery_type.upper()
         if lottery_type not in self._lotteries:
             raise ValueError(f"未知彩种: {lottery_type}，必须是 JINGCAI 或 BEIDAN")
-        return self._lotteries[lottery_type]
+        return self._lotteries[lottery_type]  # type: ignore[return-value,no-any-return]
 
     def query_rules(self, lottery_type: str, play_type: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -370,9 +370,9 @@ class LotteryKnowledge:
         if overlap_only:
             other_type = "BEIDAN" if lottery_type == "JINGCAI" else "JINGCAI"
             other = self.get_lottery(other_type)
-            return list(set(lottery["league_flat_list"]) & set(other["league_flat_list"]))
+            return list(set(lottery["league_flat_list"]) & set(other["league_flat_list"]))  # type: ignore[return-value,no-any-return]
 
-        return lottery["league_flat_list"]
+        return lottery["league_flat_list"]  # type: ignore[return-value,no-any-return]
 
     def compare_lotteries(self) -> Dict[str, Any]:
         """对比两种彩种的差异"""

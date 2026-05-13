@@ -499,7 +499,7 @@ class LLMDynamicSixLayer:
         except Exception as e:
             logger.warning(f"LLM权重调整失败: {e}")
 
-        return self.base_weights.copy()  # type: ignore[return-value]
+        return self.base_weights.copy()  # type: ignore[return-value,no-any-return]
 
     def _analyze_layer(self, layer: str, data: Dict) -> Dict:
         """分析单个层"""

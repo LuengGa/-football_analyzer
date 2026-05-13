@@ -29,7 +29,7 @@ class ConfigManager:
     def __new__(cls, config_dir: Optional[str] = None):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
+            cls._instance._initialized: bool = False  # type: ignore[has-type]
         return cls._instance
 
     def __init__(self, config_dir: Optional[str] = None):
@@ -44,7 +44,7 @@ class ConfigManager:
         self._config: Dict[str, Any] = {}
         self._sections: Dict[str, ConfigSection] = {}
         self._load_all()
-        self._initialized = True
+        self._initialized = True  # type: ignore[has-type]
 
     def _find_config_dir(self) -> Path:
         current = Path(__file__).resolve()
@@ -100,10 +100,10 @@ class ConfigManager:
     def _get_nested(self, data: Dict, keys: list) -> Any:
         for key in keys:
             if isinstance(data, dict):
-                data = data.get(key)
+                data = data.get(key)  # type: ignore[assignment]
             else:
                 return None
-        return data
+        return data  # type: ignore[return-value]
 
     def get(self, key: str, default: Any = None) -> Any:
         parts = key.split(".")

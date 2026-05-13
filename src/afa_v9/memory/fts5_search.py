@@ -108,7 +108,7 @@ class FTS5MemorySearch:
             raise
 
     def _sync_fts(self, key: str, content_str: str, category: str, tags_str: str, metadata_str: str) -> None:
-        cursor = self._conn.cursor()
+        cursor = self._conn.cursor()  # type: ignore[union-attr]
         cursor.execute("DELETE FROM memory_fts WHERE key = ?", (key,))
         cursor.execute("""
             INSERT INTO memory_fts (key, content, category, tags, metadata)
@@ -142,7 +142,7 @@ class FTS5MemorySearch:
             """, (key, content_str, category, tags_str, importance, created_at, now, metadata_str))
 
             self._sync_fts(key, content_str, category, tags_str, metadata_str)
-            self._conn.commit()
+            self._conn.commit()  # type: ignore[union-attr]
             return True
         except sqlite3.Error as e:
             logger.error(f"Failed to index memory '{key}': {e}")
@@ -195,7 +195,7 @@ class FTS5MemorySearch:
 
     def search_related(self, key: str, limit: int = 5) -> List[MemoryRecord]:
         try:
-            cursor = self._conn.cursor()
+            cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute("SELECT raw_content FROM memory_records WHERE key = ?", (key,))
             row = cursor.fetchone()
             if not row:
@@ -248,7 +248,7 @@ class FTS5MemorySearch:
             cursor = self._conn.cursor()  # type: ignore[union-attr]
             cursor.execute("DELETE FROM memory_fts WHERE key = ?", (key,))
             cursor.execute("DELETE FROM memory_records WHERE key = ?", (key,))
-            self._conn.commit()
+            self._conn.commit()  # type: ignore[union-attr]
             return True
         except sqlite3.Error as e:
             logger.error(f"Delete failed: {e}")

@@ -594,36 +594,33 @@ class ForeignAPIClient:
         self.odds_api_io = OddsAPIIOClient()
 
     def get_odds(self, home_team: str, away_team: str) -> Dict[str, Any]:
-        """
-        向后兼容的 get_odds 方法。
-        尝试 The Odds API 获取外围赔率。
-        """
-        return self.the_odds_api.get_odds()
+        """向后兼容的 get_odds 方法。尝试 The Odds API 获取外围赔率。"""
+        return self.the_odds_api.get_odds()  # type: ignore[return-value,no-any-return]
 
     def get_fixtures(self, date: str) -> Dict[str, Any]:
         """通过 API-Football 获取赛程"""
-        return self.api_football.get_fixtures(date=date)
+        return self.api_football.get_fixtures(date=date)  # type: ignore[return-value,no-any-return]
 
     def get_team_stats(self, team_id: int, league_id: int, season: int) -> Dict[str, Any]:
         """通过 API-Football 获取球队统计"""
-        return self.api_football.get_team_statistics(team_id, league_id, season)
+        return self.api_football.get_team_statistics(team_id, league_id, season)  # type: ignore[return-value,no-any-return]
 
     def get_h2h(self, team1_id: int, team2_id: int, last: int = 10) -> Dict[str, Any]:
         """通过 API-Football 获取历史交锋"""
-        return self.api_football.get_h2h(f"{team1_id}-{team2_id}", last)
+        return self.api_football.get_h2h(f"{team1_id}-{team2_id}", last)  # type: ignore[return-value,no-any-return]
 
     def get_standings(self, league_id: int, season: int) -> Dict[str, Any]:
         """通过 API-Football 获取积分榜"""
-        return self.api_football.get_standings(league_id, season)
+        return self.api_football.get_standings(league_id, season)  # type: ignore[return-value,no-any-return]
 
     def get_injuries(self, fixture_id: int) -> Dict[str, Any]:
         """通过 API-Football 获取伤停"""
-        return self.api_football.get_injuries(fixture_id=fixture_id)
+        return self.api_football.get_injuries(fixture_id=fixture_id)  # type: ignore[return-value,no-any-return]
 
     def get_prediction(self, fixture_id: int) -> Dict[str, Any]:
         """通过 API-Football 获取预测"""
-        return self.api_football.get_prediction(fixture_id)
+        return self.api_football.get_prediction(fixture_id)  # type: ignore[return-value,no-any-return]
 
     def get_epl_standings(self, season: int = 2024) -> Dict[str, Any]:
         """快捷方法：英超积分榜"""
-        return self.api_football.get_standings(39, season)  # API-Football 英超 ID=39
+        return self.api_football.get_standings(39, season)  # type: ignore[return-value,no-any-return]

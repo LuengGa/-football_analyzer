@@ -599,7 +599,7 @@ class MatchValueAnalyzer:
         
         # 按价值排序
         results.sort(
-            key=lambda x: (x["is_valuable"], x["value_result"].value_score),
+            key=lambda x: (x["is_valuable"], x["value_result"].value_score),  # type: ignore[attr-defined]
             reverse=True
         )
         

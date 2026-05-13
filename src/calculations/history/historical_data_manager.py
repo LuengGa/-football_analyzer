@@ -101,7 +101,7 @@ class HistoricalDataManager:
         self.odds_data = None
         
         # 统计信息
-        self.stats = {}
+        self.stats: Dict[str, Any] = {}
     
     def load_data(self, file_path: str) -> bool:
         """加载数据文件"""
@@ -130,10 +130,10 @@ class HistoricalDataManager:
         
         return True
     
-    def load_directory(self, dir_path: str = None) -> int:
+    def load_directory(self, dir_path: Optional[str] = None) -> int:
         """加载目录中的所有数据文件"""
         if dir_path is None:
-            dir_path = self.data_dir
+            dir_path = str(self.data_dir)
         
         loaded_count = 0
         for file_path in Path(dir_path).glob('*'):

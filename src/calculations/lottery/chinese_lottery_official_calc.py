@@ -127,10 +127,8 @@ class ChineseLotteryOfficialCalculator:
         # 基础奖金 = 2元 * SP连乘 * 65%
         raw_bonus = 2.0 * np.prod(estimated_sp_list) * ChineseLotteryOfficialCalculator.BEIDAN_RETURN_RATE
         
-        # 官方 2元保底机制
-        real_bonus = max(raw_bonus, ChineseLotteryOfficialCalculator.MINIMUM_BONUS)
+        real_bonus: float = max(raw_bonus, ChineseLotteryOfficialCalculator.MINIMUM_BONUS)
         
-        # 依法扣税
         if real_bonus >= ChineseLotteryOfficialCalculator.TAX_THRESHOLD:
             real_bonus *= ChineseLotteryOfficialCalculator.TAX_RATE
             

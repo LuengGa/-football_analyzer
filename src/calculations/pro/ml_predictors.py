@@ -52,7 +52,7 @@ class BasePredictor:
     @staticmethod
     def load(path: str) -> 'BasePredictor':
         with open(path, 'rb') as f:
-            return pickle.load(f)
+            return pickle.load(f)  # type: ignore[return-value,no-any-return]
 
 
 class RandomForestPredictor(BasePredictor):
@@ -62,7 +62,7 @@ class RandomForestPredictor(BasePredictor):
         super().__init__("RandomForest")
         self.n_estimators = n_estimators
         self.max_depth = max_depth
-        self.model = None
+        self.model: Optional[Any] = None
     
     def train(self, X: np.ndarray, y: np.ndarray):
         from sklearn.ensemble import RandomForestClassifier
@@ -75,7 +75,7 @@ class RandomForestPredictor(BasePredictor):
             random_state=42,
             n_jobs=-1
         )
-        self.model.fit(X, y)
+        self.model.fit(X, y)  # type: ignore[union-attr,attr-defined]
         self.is_trained = True
         print("✅ 随机森林训练完成")
     
@@ -84,7 +84,7 @@ class RandomForestPredictor(BasePredictor):
             return PredictionResult(0.33, 0.33, 0.34, 0.0, self.name)
         
         X = features.to_array().reshape(1, -1)
-        proba = self.model.predict_proba(X)[0]
+        proba = self.model.predict_proba(X)[0]  # type: ignore[union-attr,attr-defined]
         
         # y = 0:客胜, 1:平局, 2:主胜
         away_win = proba[0]
@@ -149,7 +149,7 @@ class XGBoostPredictor(BasePredictor):
             random_state=42,
             n_jobs=-1
         )
-        self.model.fit(X, y)
+        self.model.fit(X, y)  # type: ignore[union-attr,attr-defined]
         self.is_trained = True
         print("✅ XGBoost 训练完成")
     
@@ -158,7 +158,7 @@ class XGBoostPredictor(BasePredictor):
             return PredictionResult(0.33, 0.33, 0.34, 0.0, self.name)
         
         X = features.to_array().reshape(1, -1)
-        proba = self.model.predict_proba(X)[0]
+        proba = self.model.predict_proba(X)[0]  # type: ignore[union-attr,attr-defined]
         
         away_win = proba[0]
         draw = proba[1]

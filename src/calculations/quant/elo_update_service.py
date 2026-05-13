@@ -175,7 +175,7 @@ class ELOUpdateService:
             f"{away}: {change['away_change']:+.1f}({change['away_new']:.0f})"
         )
 
-        return change
+        return change  # type: ignore[no-any-return]
 
     def update_results(
         self,
@@ -201,10 +201,10 @@ class ELOUpdateService:
         """
         elo, storage = self._ensure_elo()
 
-        out = {
+        out: Dict[str, Any] = {
             "processed": 0,
             "skipped": 0,
-            "updates": [],
+            "updates": [],  # type: ignore[list-item]
             "elo_snapshot": None,
         }
 
@@ -262,22 +262,22 @@ class ELOUpdateService:
     def get_rating(self, team: str) -> Dict[str, Any]:
         """查询球队当前 ELO。"""
         elo, _ = self._ensure_elo()
-        return elo.get_rating(team)
+        return elo.get_rating(team)  # type: ignore[no-any-return]
 
     def get_probabilities(self, home: str, away: str) -> Dict[str, float]:
         """查询两队对碰的胜平负概率（基于当前 ELO）。"""
         elo, _ = self._ensure_elo()
-        return elo.to_probabilities(home, away)
+        return elo.to_probabilities(home, away)  # type: ignore[no-any-return]
 
     def get_rankings(self, top_n: int = 20) -> List[Dict]:
         """查询 ELO 排名。"""
         elo, _ = self._ensure_elo()
-        return elo.get_rankings(top_n=top_n)
+        return elo.get_rankings(top_n=top_n)  # type: ignore[no-any-return]
 
     def get_form_divergence(self, team: str) -> Dict[str, Any]:
         """检测球队状态与实力的背离（价值信号）。"""
         elo, _ = self._ensure_elo()
-        return elo.detect_form_vs_rating_divergence(team)
+        return elo.detect_form_vs_rating_divergence(team)  # type: ignore[no-any-return]
 
     # ─────────────────────────────────────────────────────────────
     #  内部工具

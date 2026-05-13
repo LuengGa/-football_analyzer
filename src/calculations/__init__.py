@@ -44,7 +44,7 @@ try:
     from .odds.odds_converter import *
     from .odds.omni_market_pricer import *
     from .odds.market_probability_engine import *
-    from .odds.bookmaker_analyzer import *
+    from .odds.bookmaker_analyzer import *  # type: ignore[assignment]
     from .odds.betfair_anomaly import *
     from .quant.advanced_lottery_math import *
     from .quant.hardcore_quant_math import *
@@ -58,7 +58,7 @@ try:
     from .quant.kelly_variance_analyzer import *
     from .quant.monte_carlo_simulator import *
     from .quant.portfolio_optimizer import *
-    from .quant.six_layer_analyzer import *
+    from .quant.six_layer_analyzer import *  # type: ignore[assignment]
     from .quant.smart_bet_selector import *
     from .quant.st_gnn_simulator import *
     from .quant.trap_identifier import *
@@ -74,7 +74,7 @@ try:
     from .lottery.game_type_manager import *
     from .lottery.mxn_calculator import *
     from .history.historical_data_loader import *
-    from .history.historical_data_manager import *
+    from .history.historical_data_manager import *  # type: ignore[assignment]
     from .history.historical_impact import *
     from .utils.tool_registry_v2 import *
 except ImportError as e:

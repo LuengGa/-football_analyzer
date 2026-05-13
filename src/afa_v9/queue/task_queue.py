@@ -168,14 +168,14 @@ class TaskQueue:
             metadata="{}"
         )
 
-        cursor = self._conn.cursor()
+        cursor = self._conn.cursor()  # type: ignore[union-attr]
         cursor.execute("""
             INSERT INTO tasks (id, name, func_name, args, kwargs, priority, status, created_at, scheduled_at, retry_count, max_retries, metadata)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (task.id, task.name, task.func_name, json.dumps(task.args), json.dumps(task.kwargs),
               task.priority, task.status, task.created_at, task.scheduled_at,
               task.retry_count, task.max_retries, task.metadata))
-        self._conn.commit()
+        self._conn.commit()  # type: ignore[union-attr]
 
         self._queue.put((priority, task_id))
         logger.info(f"Task {task_id} enqueued: {task.name}")
@@ -198,17 +198,17 @@ class TaskQueue:
                 return None
             task = Task.from_row(row)
             cursor.execute("UPDATE tasks SET status = ? WHERE id = ?", (TaskStatus.RUNNING.value, task.id))
-            self._conn.commit()
+            self._conn.commit()  # type: ignore[union-attr]
             return task
 
-        cursor = self._conn.cursor()
+        cursor = self._conn.cursor()  # type: ignore[union-attr]
         cursor.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
         row = cursor.fetchone()
         if not row:
             return None
         task = Task.from_row(row)
         cursor.execute("UPDATE tasks SET status = ? WHERE id = ?", (TaskStatus.RUNNING.value, task.id))
-        self._conn.commit()
+        self._conn.commit()  # type: ignore[union-attr]
         return task
 
     def complete(self, task_id: str, result: Any) -> None:

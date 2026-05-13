@@ -4,7 +4,7 @@ M串N计算器 - OpenClaw规范版本
 MxN Calculator Tool
 """
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 from itertools import combinations
 import logging
 
@@ -187,7 +187,7 @@ class MxnCalculator:
     def hedge_calculator(
         self,
         original_bet: Dict,
-        new_odds: Dict,
+        new_odds: Union[float, int],
         original_stake: float = 100
     ) -> Dict:
         """

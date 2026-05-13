@@ -72,7 +72,7 @@ class HTFTPredictor:
             'away_ht_win': 0, 'away_ht_draw': 0, 'away_ht_loss': 0,
             'total': 0
         })
-        self.htft_transition_matrix: Dict[Tuple, Dict] = defaultdict(lambda: defaultdict(int))
+        self.htft_transition_matrix: Dict[str, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
 
     def fit(self, matches: List[Any]):
         """训练 HT/FT 预测器"""
